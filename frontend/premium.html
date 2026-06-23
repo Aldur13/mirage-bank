@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirage Bank — Premium</title>
+    <meta name="description" content="Mirage Bank Premium — the future of banking is here. Coming soon.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+    <style>
+        .coming-soon-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(120deg, rgba(124,131,255,.2), rgba(177,92,255,.2));
+            border: 1px solid rgba(124,131,255,.4);
+            border-radius: 100px; padding: 6px 16px 6px 10px;
+            font-size: 13px; font-weight: 700; letter-spacing: .06em;
+            color: #b8bbff; text-transform: uppercase; margin-bottom: 24px;
+        }
+        .coming-soon-badge .dot { width:8px;height:8px;border-radius:50%; background:#7c83ff; animation:pulse 1.6s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+        .premium-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:48px; }
+        .premium-card {
+            background: linear-gradient(140deg,rgba(255,255,255,.1),rgba(255,255,255,.03));
+            border:1px solid rgba(255,255,255,.12); border-radius:20px;
+            padding:28px 24px; position:relative; overflow:hidden;
+        }
+        .premium-card::before { content:""; position:absolute; inset:0; background:linear-gradient(135deg,rgba(124,131,255,.08),transparent); pointer-events:none; }
+        .premium-card-icon { width:42px;height:42px;border-radius:12px; background:linear-gradient(135deg,rgba(124,131,255,.3),rgba(177,92,255,.3)); display:flex;align-items:center;justify-content:center; margin-bottom:16px; }
+        .premium-card h3 { font-size:16px;font-weight:700;margin-bottom:8px; }
+        .premium-card p { font-size:14px;color:var(--muted);line-height:1.6; }
+        .teaser-tag { font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em; color:#b15cff; }
+        .notify-form { display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:32px; }
+        .notify-form input {
+            flex:1;min-width:220px;padding:13px 16px;
+            background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:12px;
+            font-size:14px;color:#eef1ff;font-family:inherit;outline:none;
+        }
+        .notify-form input::placeholder{color:#6b7590;}
+        .notify-form input:focus{border-color:#7c83ff;}
+        .notify-success{color:#6effa8;font-weight:600;font-size:14px;text-align:center;margin-top:10px;display:none;}
+    </style>
+</head>
+<body class="mirage">
+
+<div class="scene" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+</div>
+
+<div class="shell">
+
+    <nav class="nav" id="nav">
+        <a class="logo" href="index.html" aria-label="Mirage Bank home">
+            <span class="mark"></span><b>Mirage</b><span>Bank</span>
+        </a>
+        <div class="nav-links">
+            <a href="personal.html">Personal</a>
+            <a href="business.html">Business</a>
+            <a href="youth.html">Youth</a>
+            <a href="premium.html" class="nav-active">Premium</a>
+            <a href="support-center.html">Support</a>
+        </div>
+        <div class="nav-cta">
+            <a class="link-signin" href="login.html">Sign In</a>
+            <a class="btn btn-primary" href="login.html?register">Open Account</a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+        </div>
+    </nav>
+
+    <header class="hero hero-sm">
+        <div class="hero-copy hero-copy-center">
+            <div class="coming-soon-badge"><span class="dot"></span> Coming soon</div>
+            <h1 class="reveal d1">Banking <span class="grad">elevated</span></h1>
+            <p class="lead reveal d2">Mirage Premium is the next tier — exclusive features, dedicated support, advanced analytics, and more. We're building it now.</p>
+            <p class="lead reveal d3" style="font-size:15px;margin-top:0;">Sign up below to be first in line when we launch.</p>
+
+            <div class="notify-form reveal d4">
+                <input type="email" id="notify-email" placeholder="your@email.com">
+                <button class="btn btn-primary" id="notify-btn">Notify me</button>
+            </div>
+            <div class="notify-success" id="notify-success">You're on the list. We'll be in touch.</div>
+        </div>
+    </header>
+
+    <!-- Teaser features -->
+    <section class="features">
+        <h2 class="section-title reveal">What's coming</h2>
+        <div class="premium-grid">
+            <div class="premium-card reveal">
+                <div class="premium-card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="teaser-tag">Analytics</div>
+                <h3>Spending insights</h3>
+                <p>Categorised spending charts, trend lines, and monthly summaries — see exactly where your money goes.</p>
+            </div>
+            <div class="premium-card reveal">
+                <div class="premium-card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="teaser-tag">Investing</div>
+                <h3>Savings goals</h3>
+                <p>Set savings targets and track your progress. Built-in tools to help you reach your financial goals faster.</p>
+            </div>
+            <div class="premium-card reveal">
+                <div class="premium-card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="teaser-tag">Cards</div>
+                <h3>Virtual card</h3>
+                <p>Instantly generate virtual cards for online purchases. Freeze, unfreeze, or delete with a single click.</p>
+            </div>
+            <div class="premium-card reveal">
+                <div class="premium-card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="teaser-tag">Support</div>
+                <h3>Dedicated concierge</h3>
+                <p>Premium members get a dedicated support agent — real conversations, not queue numbers.</p>
+            </div>
+            <div class="premium-card reveal">
+                <div class="premium-card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="teaser-tag">Rewards</div>
+                <h3>Cashback &amp; perks</h3>
+                <p>Earn cashback on transfers and unlock exclusive perks with Mirage Premium partners.</p>
+            </div>
+            <div class="premium-card reveal">
+                <div class="premium-card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="teaser-tag">Security</div>
+                <h3>Advanced 2FA</h3>
+                <p>Hardware key support, biometric login options, and enhanced session controls for peace of mind.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-brand"><span class="mark-sm"></span> Mirage Bank</div>
+        <div class="footer-links">
+            <a href="personal.html">Personal</a>
+            <a href="business.html">Business</a>
+            <a href="youth.html">Youth</a>
+            <a href="premium.html">Premium</a>
+            <a href="support-center.html">Support</a>
+        </div>
+        <div class="footer-copy">© 2026 Mirage Bank. Fictional demo only.</div>
+    </footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+    (function() {
+        var nav = document.getElementById('nav');
+        var toggle = document.getElementById('navToggle');
+        toggle.addEventListener('click', function() { var o = nav.classList.toggle('open'); toggle.setAttribute('aria-expanded', String(o)); });
+        nav.querySelectorAll('.nav-links a').forEach(function(a) { a.addEventListener('click', function() { nav.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); }); });
+    })();
+
+    // Notify me (local only — no backend endpoint)
+    document.getElementById('notify-btn').addEventListener('click', () => {
+        const email = document.getElementById('notify-email').value.trim();
+        if (!email || !email.includes('@')) return;
+        document.querySelector('.notify-form').style.display = 'none';
+        document.getElementById('notify-success').style.display = 'block';
+    });
+
+    const tok = localStorage.getItem('banking_token');
+    if (tok) {
+        fetch(window.API_BASE_URL + '/me', { headers: { Authorization: 'Bearer ' + tok } })
+            .then(r => r.ok ? r.json() : null).then(me => {
+                if (me) window.location.href = me.role === 'admin' ? 'admin.html' : 'dashboard.html';
+            }).catch(() => {});
+    }
+</script>
+</body>
+</html>

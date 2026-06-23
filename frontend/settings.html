@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirage Bank — Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="app">
+
+<!-- ── Mobile topbar ───────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-brand">
+        <span class="topbar-mark"></span>
+        <span class="topbar-name">Mirage Bank</span>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+
+<!-- ── Sidebar ────────────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+    <a class="sidebar-logo" href="dashboard.html">
+        <span class="sidebar-mark"></span>
+        <span class="sidebar-name">Mirage<b>Bank</b></span>
+    </a>
+
+    <div class="nav-group">
+        <a class="nav-item" href="dashboard.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/><rect x="11" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="2" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="11" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item" href="support.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 5v5m0 2.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Support
+        </a>
+        <a class="nav-item active" href="settings.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M10 2v2m0 12v2M2 10h2m12 0h2m-3.17-4.83L11.4 6.6M6.6 13.4l-1.43 1.43m0-9.66L6.6 6.6M13.4 13.4l1.43 1.43" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Settings
+        </a>
+        <a class="nav-item" href="admin.html" id="admin-nav-item" style="display:none">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11l-3.7 2.5 1.4-4.3L4 6.5h4.5L10 2z" fill="currentColor" opacity=".9"/></svg>
+            Admin
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="user-avatar" id="sidebar-avatar"></div>
+            <div class="user-meta">
+                <span class="user-name"  id="sidebar-name">Loading…</span>
+                <span class="user-email" id="sidebar-email"></span>
+            </div>
+        </div>
+        <button class="signout-btn" id="signout-btn" title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13 7l4 3-4 3M7 10h10M7 3H4a1 1 0 00-1 1v12a1 1 0 001 1h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </div>
+</nav>
+
+<!-- ── Main ────────────────────────────────────────────────────── -->
+<main class="main">
+
+    <div class="settings-layout">
+
+        <!-- Settings nav (desktop left column) -->
+        <nav class="settings-nav">
+            <a class="settings-nav-item active" href="#profile">Profile</a>
+            <a class="settings-nav-item" href="#security">Security</a>
+            <a class="settings-nav-item" href="#appearance">Appearance</a>
+            <a class="settings-nav-item" href="#help">Help &amp; Support</a>
+        </nav>
+
+        <!-- Settings sections -->
+        <div class="settings-sections">
+
+            <!-- ── Profile ──────────────────────────────────── -->
+            <section class="settings-section card" id="profile">
+                <div class="card-head"><h2 class="card-title">Profile</h2></div>
+                <div class="card-body">
+
+                    <!-- Avatar upload -->
+                    <div class="avatar-row">
+                        <div class="avatar-preview" id="avatar-preview"></div>
+                        <div class="avatar-info">
+                            <div class="avatar-label">Profile picture</div>
+                            <div class="avatar-hint">JPG or PNG, max 2 MB. Resized to 160×160 px.</div>
+                            <label class="btn btn-ghost btn-sm avatar-upload-btn">
+                                Upload photo
+                                <input type="file" id="avatar-input" accept="image/jpeg,image/png" hidden>
+                            </label>
+                            <button class="btn btn-ghost btn-sm" id="remove-avatar-btn" style="display:none">Remove</button>
+                        </div>
+                    </div>
+
+                    <form id="profile-form">
+                        <div class="form-field">
+                            <label for="profile-name">Full name</label>
+                            <input type="text" id="profile-name" placeholder="Your name" required maxlength="100">
+                        </div>
+                        <div class="form-field">
+                            <label>Email</label>
+                            <input type="email" id="profile-email" disabled>
+                            <div class="field-hint">Email cannot be changed.</div>
+                        </div>
+                        <div id="profile-alert" class="alert"></div>
+                        <button type="submit" class="btn btn-primary" id="profile-btn">Save changes</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ── Security ─────────────────────────────────── -->
+            <section class="settings-section card" id="security">
+                <div class="card-head"><h2 class="card-title">Security</h2></div>
+                <div class="card-body">
+                    <form id="password-form">
+                        <div class="form-field">
+                            <label for="pw-current">Current password</label>
+                            <input type="password" id="pw-current" placeholder="Enter current password" required autocomplete="current-password">
+                        </div>
+                        <div class="form-field">
+                            <label for="pw-new">New password</label>
+                            <input type="password" id="pw-new" placeholder="Min 8 characters" required minlength="8" maxlength="72" autocomplete="new-password">
+                        </div>
+                        <div class="form-field">
+                            <label for="pw-confirm">Confirm new password</label>
+                            <input type="password" id="pw-confirm" placeholder="Repeat new password" required autocomplete="new-password">
+                        </div>
+                        <div id="password-alert" class="alert"></div>
+                        <button type="submit" class="btn btn-primary" id="password-btn">Change password</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ── Appearance ────────────────────────────────── -->
+            <section class="settings-section card" id="appearance">
+                <div class="card-head"><h2 class="card-title">Appearance</h2></div>
+                <div class="card-body">
+                    <div class="toggle-row">
+                        <div>
+                            <div class="toggle-label">Dark mode</div>
+                            <div class="toggle-hint">Switch between dark and light interface.</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dark-mode-toggle">
+                            <span class="toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── Help & Support ────────────────────────────── -->
+            <section class="settings-section card" id="help">
+                <div class="card-head"><h2 class="card-title">Help &amp; Support</h2></div>
+                <div class="card-body">
+                    <p class="section-hint">Have a question or issue? Our support team is here to help.</p>
+                    <a class="btn btn-primary" href="support.html">Open a support ticket</a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+    let _me = null;
+    let _pendingAvatarData = null;
+
+    async function init() {
+        loadTheme();
+        _me = await requireAuth(false);
+        if (!_me) return;
+
+        document.getElementById('signout-btn').addEventListener('click', () => {
+            clearToken(); window.location.href = 'login.html';
+        });
+        initSidebar();
+        populateProfile();
+        initAvatarUpload();
+        initDarkModeToggle();
+        initSettingsNav();
+
+        document.getElementById('profile-form').addEventListener('submit', handleProfileSave);
+        document.getElementById('password-form').addEventListener('submit', handlePasswordChange);
+    }
+
+    function populateProfile() {
+        document.getElementById('profile-name').value  = _me.name  || '';
+        document.getElementById('profile-email').value = _me.email || '';
+
+        const preview = document.getElementById('avatar-preview');
+        renderAvatar(preview, _me.avatar_data, _me.name);
+        if (_me.avatar_data) document.getElementById('remove-avatar-btn').style.display = '';
+    }
+
+    function initAvatarUpload() {
+        document.getElementById('avatar-input').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { showToast('Image must be under 2 MB.', 'error'); return; }
+
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const SIZE = 160;
+                    canvas.width = canvas.height = SIZE;
+                    const ctx = canvas.getContext('2d');
+                    // Center-crop
+                    const scale = SIZE / Math.min(img.width, img.height);
+                    const w = img.width * scale, h = img.height * scale;
+                    ctx.drawImage(img, (SIZE - w) / 2, (SIZE - h) / 2, w, h);
+                    _pendingAvatarData = canvas.toDataURL('image/jpeg', 0.82);
+
+                    const preview = document.getElementById('avatar-preview');
+                    preview.innerHTML = `<img src="${_pendingAvatarData}" alt="Preview">`;
+                    document.getElementById('remove-avatar-btn').style.display = '';
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('remove-avatar-btn').addEventListener('click', () => {
+            _pendingAvatarData = '';
+            const preview = document.getElementById('avatar-preview');
+            renderAvatar(preview, null, _me.name);
+            document.getElementById('remove-avatar-btn').style.display = 'none';
+        });
+    }
+
+    function initDarkModeToggle() {
+        const toggle = document.getElementById('dark-mode-toggle');
+        toggle.checked = getTheme() === 'dark';
+        toggle.addEventListener('change', () => {
+            const theme = toggle.checked ? 'dark' : 'light';
+            saveTheme(theme);
+        });
+    }
+
+    function initSettingsNav() {
+        const items = document.querySelectorAll('.settings-nav-item');
+        items.forEach(item => {
+            item.addEventListener('click', e => {
+                items.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        // Highlight active section on scroll
+        const sections = document.querySelectorAll('.settings-section');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(s => {
+                if (window.scrollY >= s.offsetTop - 80) current = s.id;
+            });
+            items.forEach(i => {
+                i.classList.toggle('active', i.getAttribute('href') === '#' + current);
+            });
+        }, { passive: true });
+    }
+
+    async function handleProfileSave(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('profile-alert');
+        hideAlert(alertEl);
+        const btn = document.getElementById('profile-btn');
+        btn.disabled = true; btn.textContent = 'Saving…';
+
+        const body = { name: document.getElementById('profile-name').value.trim() };
+        if (_pendingAvatarData !== null) body.avatar_data = _pendingAvatarData;
+
+        const { ok, data } = await apiFetch('PATCH', '/profile', body);
+        if (ok) {
+            _me.name = body.name;
+            if (_pendingAvatarData !== null) _me.avatar_data = _pendingAvatarData;
+            _pendingAvatarData = null;
+            applyUserMeta(_me);
+            showSuccess(alertEl, 'Profile updated.');
+            showToast('Profile saved.', 'success');
+        } else {
+            showError(alertEl, handleApiError(data, 'Update failed.'));
+        }
+        btn.disabled = false; btn.textContent = 'Save changes';
+    }
+
+    async function handlePasswordChange(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('password-alert');
+        hideAlert(alertEl);
+
+        const newPw  = document.getElementById('pw-new').value;
+        const confPw = document.getElementById('pw-confirm').value;
+        if (newPw !== confPw) { showError(alertEl, 'New passwords do not match.'); return; }
+
+        const btn = document.getElementById('password-btn');
+        btn.disabled = true; btn.textContent = 'Changing…';
+
+        const { ok, data } = await apiFetch('POST', '/profile/password', {
+            old_password: document.getElementById('pw-current').value,
+            new_password: newPw,
+        });
+
+        if (ok) {
+            document.getElementById('password-form').reset();
+            showSuccess(alertEl, 'Password changed successfully.');
+            showToast('Password updated.', 'success');
+        } else {
+            showError(alertEl, handleApiError(data, 'Password change failed.'));
+        }
+        btn.disabled = false; btn.textContent = 'Change password';
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirage Bank — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="app">
+
+<!-- ── Mobile topbar ───────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-brand">
+        <span class="topbar-mark"></span>
+        <span class="topbar-name">Mirage Admin</span>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+
+<!-- ── Sidebar ────────────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+    <a class="sidebar-logo" href="admin.html">
+        <span class="sidebar-mark"></span>
+        <span class="sidebar-name">Mirage<b>Admin</b></span>
+    </a>
+
+    <div class="nav-group">
+        <a class="nav-item active" href="admin.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11l-3.7 2.5 1.4-4.3L4 6.5h4.5L10 2z" fill="currentColor"/></svg>
+            Admin Panel
+        </a>
+        <a class="nav-item" href="dashboard.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/><rect x="11" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="2" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="11" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item" href="settings.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M10 2v2m0 12v2M2 10h2m12 0h2m-3.17-4.83L11.4 6.6M6.6 13.4l-1.43 1.43m0-9.66L6.6 6.6M13.4 13.4l1.43 1.43" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Settings
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="user-avatar" id="sidebar-avatar"></div>
+            <div class="user-meta">
+                <span class="user-name"  id="sidebar-name">Loading…</span>
+                <span class="user-email" id="sidebar-email"></span>
+            </div>
+        </div>
+        <button class="signout-btn" id="signout-btn" title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13 7l4 3-4 3M7 10h10M7 3H4a1 1 0 00-1 1v12a1 1 0 001 1h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </div>
+</nav>
+
+<!-- ── Main ────────────────────────────────────────────────────── -->
+<main class="main">
+
+    <!-- Stats strip -->
+    <div class="stats-row" id="admin-stats">
+        <div class="stat-card"><div class="stat-label">Total users</div><div class="stat-value" id="stat-users">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total accounts</div><div class="stat-value" id="stat-accounts">—</div></div>
+        <div class="stat-card"><div class="stat-label">Treasury balance</div><div class="stat-value" id="stat-treasury">—</div></div>
+        <div class="stat-card"><div class="stat-label">Open tickets</div><div class="stat-value" id="stat-tickets">—</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card">
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="tab-users">Users</button>
+            <button class="tab-btn" data-tab="tab-transactions">Transactions</button>
+            <button class="tab-btn" data-tab="tab-tickets">Support</button>
+            <button class="tab-btn" data-tab="tab-funding">Funding</button>
+        </div>
+
+        <!-- ── Users tab ──────────────────────────────────────── -->
+        <div class="tab-panel active" id="tab-users">
+            <div class="card-head">
+                <h2 class="card-title">All users</h2>
+                <button class="btn-ghost" id="refresh-users">Refresh</button>
+            </div>
+            <div class="card-body" id="users-table-wrap">
+                <p class="empty-hint">Loading…</p>
+            </div>
+        </div>
+
+        <!-- ── Transactions tab ───────────────────────────────── -->
+        <div class="tab-panel" id="tab-transactions">
+            <div class="card-head">
+                <h2 class="card-title">All transactions</h2>
+                <button class="btn-ghost" id="refresh-admin-tx">Refresh</button>
+            </div>
+            <div class="card-body" id="admin-tx-wrap">
+                <p class="empty-hint">Click Refresh to load.</p>
+            </div>
+        </div>
+
+        <!-- ── Support tab ────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-tickets">
+            <div class="card-head">
+                <h2 class="card-title">Support tickets</h2>
+                <button class="btn-ghost" id="refresh-tickets">Refresh</button>
+            </div>
+            <div class="card-body" id="tickets-wrap">
+                <p class="empty-hint">Loading…</p>
+            </div>
+        </div>
+
+        <!-- ── Funding tab ────────────────────────────────────── -->
+        <div class="tab-panel" id="tab-funding">
+            <div class="card-head">
+                <h2 class="card-title">Credit funds</h2>
+            </div>
+            <div class="card-body">
+                <p class="section-hint">Credit funds directly to a user's account. This deducts from the treasury balance.</p>
+                <form id="credit-form" class="inline-form">
+                    <div class="form-field">
+                        <label for="credit-email">User email</label>
+                        <input type="email" id="credit-email" placeholder="user@example.com" required autocomplete="off">
+                    </div>
+                    <div class="form-field">
+                        <label for="credit-amount">Amount (€)</label>
+                        <input type="number" id="credit-amount" placeholder="0.00" min="0.01" step="0.01" required>
+                    </div>
+                    <div id="credit-alert" class="alert"></div>
+                    <button type="submit" class="btn btn-primary" id="credit-btn">Credit account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- ── User action modal ───────────────────────────────────────── -->
+<div class="modal" id="modal-user">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 id="modal-user-title">User actions</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <div id="modal-user-body"></div>
+    </div>
+</div>
+
+<!-- ── Ticket detail modal ─────────────────────────────────────── -->
+<div class="modal" id="modal-ticket">
+    <div class="modal-box modal-box-wide">
+        <div class="modal-head">
+            <h3 id="ticket-modal-title">Ticket</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <div id="ticket-modal-body"></div>
+    </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+    let _me = null;
+    let _allUsers = [];
+    let _openTickets = 0;
+
+    async function init() {
+        loadTheme();
+        _me = await requireAuth(true);
+        if (!_me) return;
+
+        document.getElementById('signout-btn').addEventListener('click', () => {
+            clearToken(); window.location.href = 'login.html';
+        });
+        initSidebar();
+        bindModalClose('modal-user');
+        bindModalClose('modal-ticket');
+        initTabs();
+
+        await Promise.all([loadStats(), loadUsers(), loadTickets()]);
+
+        document.getElementById('refresh-users').addEventListener('click', loadUsers);
+        document.getElementById('refresh-admin-tx').addEventListener('click', loadAdminTx);
+        document.getElementById('refresh-tickets').addEventListener('click', loadTickets);
+        document.getElementById('credit-form').addEventListener('submit', handleCredit);
+
+        document.querySelector('.tab-btn[data-tab="tab-transactions"]').addEventListener('click', () => {
+            if (document.getElementById('admin-tx-wrap').querySelector('.empty-hint')) loadAdminTx();
+        });
+    }
+
+    function initTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+    }
+
+    async function loadStats() {
+        const { ok, data } = await apiFetch('GET', '/admin/users');
+        if (ok) {
+            const users = data.users || [];
+            _allUsers = users;
+            document.getElementById('stat-users').textContent = users.length;
+            document.getElementById('stat-accounts').textContent = users.length;
+        }
+        const { ok: tok, data: td } = await apiFetch('GET', '/admin/support/tickets');
+        if (tok) {
+            _openTickets = (td.tickets || []).filter(t => t.status === 'open' || t.status === 'in_progress').length;
+            document.getElementById('stat-tickets').textContent = _openTickets;
+        }
+        const { ok: bok, data: bd } = await apiFetch('GET', '/admin/treasury');
+        if (bok) document.getElementById('stat-treasury').textContent = formatMoney(bd.issued_cents);
+        else document.getElementById('stat-treasury').textContent = 'N/A';
+    }
+
+    async function loadUsers() {
+        const wrap = document.getElementById('users-table-wrap');
+        wrap.innerHTML = '<p class="empty-hint">Loading…</p>';
+        const { ok, data } = await apiFetch('GET', '/admin/users');
+        if (!ok) { wrap.innerHTML = '<p class="empty-hint error-hint">Failed to load users.</p>'; return; }
+        const users = data.users || [];
+        _allUsers = users;
+        document.getElementById('stat-users').textContent = users.length;
+
+        if (!users.length) { wrap.innerHTML = '<p class="empty-hint">No users found.</p>'; return; }
+
+        const rows = users.map(u => `
+            <tr>
+                <td>
+                    <div class="user-cell">
+                        <div class="cell-avatar" data-name="${escHtml(u.name)}"></div>
+                        <div>
+                            <div class="cell-name">${escHtml(u.name)}</div>
+                            <div class="cell-sub">${escHtml(u.email)}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge badge-${escHtml(u.role)}">${escHtml(u.role)}</span></td>
+                <td><span class="badge badge-${escHtml(u.account_type || 'personal')}">${escHtml(u.account_type || 'personal')}</span></td>
+                <td>${formatMoney(u.balance_cents || 0)}</td>
+                <td><span class="badge badge-${escHtml(u.status || 'active')}">${escHtml(u.status || 'active')}</span></td>
+                <td>
+                    <button class="btn-table-action" onclick="openUserModal('${escHtml(u.id)}')">Manage</button>
+                </td>
+            </tr>`).join('');
+
+        wrap.innerHTML = `
+            <table class="data-table">
+                <thead><tr>
+                    <th>User</th><th>Role</th><th>Type</th><th>Balance</th><th>Status</th><th></th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+
+        // Render initials in cell avatars
+        wrap.querySelectorAll('.cell-avatar').forEach(el => {
+            renderAvatar(el, null, el.dataset.name);
+        });
+    }
+
+    function openUserModal(userId) {
+        const u = _allUsers.find(x => x.id === userId);
+        if (!u) return;
+        document.getElementById('modal-user-title').textContent = u.name;
+
+        const statusActions = [];
+        if (u.status !== 'active')   statusActions.push(`<button class="btn btn-success btn-sm" onclick="setUserStatus('${userId}','active')">Activate</button>`);
+        if (u.status !== 'frozen')   statusActions.push(`<button class="btn btn-warn btn-sm" onclick="setUserStatus('${userId}','frozen')">Freeze</button>`);
+        if (u.status !== 'disabled') statusActions.push(`<button class="btn btn-danger btn-sm" onclick="setUserStatus('${userId}','disabled')">Disable</button>`);
+
+        document.getElementById('modal-user-body').innerHTML = `
+            <div class="user-detail-grid">
+                <div class="detail-row"><span>Email</span><span>${escHtml(u.email)}</span></div>
+                <div class="detail-row"><span>Role</span><span><span class="badge badge-${escHtml(u.role)}">${escHtml(u.role)}</span></span></div>
+                <div class="detail-row"><span>Balance</span><span>${formatMoney(u.balance_cents || 0)}</span></div>
+                <div class="detail-row"><span>Status</span><span><span class="badge badge-${escHtml(u.status)}">${escHtml(u.status)}</span></span></div>
+                <div class="detail-row"><span>Type</span><span>${escHtml(u.account_type || 'personal')}</span></div>
+            </div>
+            <div id="user-action-alert" class="alert" style="margin-top:12px;"></div>
+            <div class="modal-actions">${statusActions.join('')}</div>
+            <hr style="border-color:var(--stroke);margin:16px 0">
+            <div class="form-field" style="margin-bottom:8px;">
+                <label>Credit funds (€)</label>
+                <input type="number" id="modal-credit-amount" placeholder="0.00" min="0.01" step="0.01">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="modalCreditUser('${escHtml(userId)}')">Credit account</button>`;
+
+        openModal('modal-user');
+    }
+
+    async function setUserStatus(userId, status) {
+        const alertEl = document.getElementById('user-action-alert');
+        hideAlert(alertEl);
+        const endpoints = { active: '/admin/unfreeze', frozen: '/admin/freeze', disabled: '/admin/disable' };
+        const { ok, data } = await apiFetch('POST', endpoints[status], { user_id: userId });
+        if (ok) {
+            showToast(`Account ${status}.`, 'success');
+            closeModal('modal-user');
+            await loadUsers();
+        } else {
+            showError(alertEl, handleApiError(data, 'Action failed.'));
+        }
+    }
+
+    async function modalCreditUser(userId) {
+        const alertEl = document.getElementById('user-action-alert');
+        hideAlert(alertEl);
+        const amountEl = document.getElementById('modal-credit-amount');
+        const amount_cents = Math.round(parseFloat(amountEl.value) * 100);
+        if (!amount_cents || amount_cents <= 0) { showError(alertEl, 'Enter a valid amount.'); return; }
+        const { ok, data } = await apiFetch('POST', '/admin/credit', { user_id: userId, amount_cents });
+        if (ok) {
+            showToast(`Credited ${formatMoney(amount_cents)}.`, 'success');
+            closeModal('modal-user');
+            await loadUsers();
+        } else {
+            showError(alertEl, handleApiError(data, 'Credit failed.'));
+        }
+    }
+
+    async function loadAdminTx() {
+        const wrap = document.getElementById('admin-tx-wrap');
+        wrap.innerHTML = '<p class="empty-hint">Loading…</p>';
+        const { ok, data } = await apiFetch('GET', '/admin/transactions');
+        if (!ok) { wrap.innerHTML = '<p class="empty-hint error-hint">Failed to load.</p>'; return; }
+        const txs = data.transactions || [];
+        if (!txs.length) { wrap.innerHTML = '<p class="empty-hint">No transactions.</p>'; return; }
+
+        const rows = txs.map(tx => `<tr>
+                <td>${formatDateTime(tx.timestamp)}</td>
+                <td>${escHtml(tx.from_name || '—')}</td>
+                <td>${escHtml(tx.to_name || '—')}</td>
+                <td>${escHtml(tx.description || tx.type)}</td>
+                <td>${formatMoney(Math.abs(tx.amount_cents))}</td>
+            </tr>`).join('');
+
+        wrap.innerHTML = `
+            <table class="data-table">
+                <thead><tr><th>Time</th><th>From</th><th>To</th><th>Description</th><th>Amount</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    }
+
+    async function loadTickets() {
+        const wrap = document.getElementById('tickets-wrap');
+        wrap.innerHTML = '<p class="empty-hint">Loading…</p>';
+        const { ok, data } = await apiFetch('GET', '/admin/support/tickets');
+        if (!ok) { wrap.innerHTML = '<p class="empty-hint error-hint">Failed to load tickets.</p>'; return; }
+        const tickets = data.tickets || [];
+
+        _openTickets = tickets.filter(t => t.status === 'open' || t.status === 'in_progress').length;
+        document.getElementById('stat-tickets').textContent = _openTickets;
+
+        if (!tickets.length) { wrap.innerHTML = '<p class="empty-hint">No tickets.</p>'; return; }
+
+        const rows = tickets.map(t => `
+            <tr>
+                <td><span class="mono small">${escHtml(t.id.slice(-8))}</span></td>
+                <td>${escHtml(t.subject)}</td>
+                <td>${escHtml(t.user_name || t.user_email || '—')}</td>
+                <td><span class="badge badge-${escHtml(t.status)}">${escHtml(t.status)}</span></td>
+                <td><span class="badge badge-${escHtml(t.priority || 'normal')}">${escHtml(t.priority || 'normal')}</span></td>
+                <td>${formatDate(t.created_at)}</td>
+                <td><button class="btn-table-action" onclick="openTicketModal('${escHtml(t.id)}')">View</button></td>
+            </tr>`).join('');
+
+        wrap.innerHTML = `
+            <table class="data-table">
+                <thead><tr><th>ID</th><th>Subject</th><th>User</th><th>Status</th><th>Priority</th><th>Date</th><th></th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+    }
+
+    async function openTicketModal(ticketId) {
+        document.getElementById('ticket-modal-body').innerHTML = '<p class="empty-hint">Loading…</p>';
+        openModal('modal-ticket');
+
+        const { ok, data } = await apiFetch('GET', `/admin/support/tickets/${ticketId}`);
+        if (!ok) { document.getElementById('ticket-modal-body').innerHTML = '<p class="empty-hint error-hint">Failed to load.</p>'; return; }
+
+        const t = data;
+        document.getElementById('ticket-modal-title').textContent = t.subject;
+
+        const messages = (t.messages || []).map(m => `
+            <div class="msg-bubble ${m.is_staff ? 'msg-staff' : 'msg-user'}">
+                <div class="msg-meta">${escHtml(m.author_name || (m.is_staff ? 'Staff' : 'User'))} · ${formatDateTime(m.created_at)}</div>
+                <div class="msg-body">${escHtml(m.content)}</div>
+            </div>`).join('');
+
+        document.getElementById('ticket-modal-body').innerHTML = `
+            <div class="ticket-meta-row">
+                <span class="badge badge-${escHtml(t.status)}">${escHtml(t.status)}</span>
+                <span class="badge badge-${escHtml(t.priority || 'normal')}">${escHtml(t.priority || 'normal')}</span>
+                <span class="meta-text">Opened ${formatDate(t.created_at)}</span>
+            </div>
+            <div class="ticket-actions-row">
+                <select id="ticket-priority-sel">
+                    ${['low','normal','high','urgent'].map(p => `<option value="${p}" ${p===t.priority?'selected':''}>${titleCase(p)}</option>`).join('')}
+                </select>
+                <select id="ticket-status-sel">
+                    ${['open','in_progress','waiting','resolved','closed'].map(s => `<option value="${s}" ${s===t.status?'selected':''}>${titleCase(s.replace('_',' '))}</option>`).join('')}
+                </select>
+                <button class="btn btn-ghost btn-sm" onclick="saveTicketMeta('${escHtml(ticketId)}')">Update</button>
+            </div>
+            <div class="msg-thread">${messages || '<p class="empty-hint">No messages.</p>'}</div>
+            <div id="ticket-reply-alert" class="alert"></div>
+            <form id="ticket-reply-form" class="reply-form">
+                <textarea id="ticket-reply-body" rows="3" placeholder="Write a reply…" required></textarea>
+                <button type="submit" class="btn btn-primary btn-sm">Reply as staff</button>
+            </form>`;
+
+        document.getElementById('ticket-reply-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const alertEl = document.getElementById('ticket-reply-alert');
+            hideAlert(alertEl);
+            const content = document.getElementById('ticket-reply-body').value.trim();
+            const { ok: rok, data: rd } = await apiFetch('POST', `/admin/support/tickets/${ticketId}/messages`, { content });
+            if (rok) {
+                document.getElementById('ticket-reply-body').value = '';
+                showToast('Reply sent.', 'success');
+                await openTicketModal(ticketId);
+                await loadTickets();
+            } else {
+                showError(alertEl, handleApiError(rd, 'Failed to send reply.'));
+            }
+        });
+    }
+
+    async function saveTicketMeta(ticketId) {
+        const priority = document.getElementById('ticket-priority-sel').value;
+        const status   = document.getElementById('ticket-status-sel').value;
+        const { ok, data } = await apiFetch('PATCH', `/admin/support/tickets/${ticketId}`, { priority, status });
+        if (ok) {
+            showToast('Ticket updated.', 'success');
+            await loadTickets();
+        } else {
+            showToast(handleApiError(data, 'Update failed.'), 'error');
+        }
+    }
+
+    async function handleCredit(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('credit-alert');
+        hideAlert(alertEl);
+        const btn = document.getElementById('credit-btn');
+        btn.disabled = true; btn.textContent = 'Processing…';
+
+        const email = document.getElementById('credit-email').value.trim().toLowerCase();
+        const amount_cents = Math.round(parseFloat(document.getElementById('credit-amount').value) * 100);
+
+        // Look up user_id from already-loaded list, or fetch if needed
+        let user = _allUsers.find(u => u.email === email);
+        if (!user) {
+            const { ok: lok, data: ld } = await apiFetch('GET', '/admin/users');
+            if (lok) { _allUsers = ld.users || []; user = _allUsers.find(u => u.email === email); }
+        }
+        if (!user) {
+            showError(alertEl, `No user found with email ${email}.`);
+            btn.disabled = false; btn.textContent = 'Credit account';
+            return;
+        }
+
+        const { ok, data } = await apiFetch('POST', '/admin/credit', { user_id: user.id, amount_cents });
+        if (ok) {
+            document.getElementById('credit-form').reset();
+            showSuccess(alertEl, `Credited ${formatMoney(amount_cents)} to ${escHtml(user.name)}.`);
+            await loadStats();
+            await loadUsers();
+        } else {
+            showError(alertEl, handleApiError(data, 'Credit failed.'));
+        }
+        btn.disabled = false; btn.textContent = 'Credit account';
+    }
+
+    init();
+</script>
+</body>
+</html>

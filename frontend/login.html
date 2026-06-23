@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirage Bank — Sign in</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+    <style>
+        /* Auth card overlay on top of landing scene */
+        .auth-scene { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 1; }
+        .auth-card {
+            width: 100%; max-width: 420px;
+            background: linear-gradient(160deg, rgba(255,255,255,0.13), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 24px;
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            box-shadow: 0 32px 80px -20px rgba(3,5,25,0.75);
+            padding: 36px 36px 30px;
+            animation: cardIn .6s cubic-bezier(.2,.7,.2,1);
+        }
+        @keyframes cardIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+
+        .auth-logo { display: flex; align-items: center; gap: 11px; font-weight: 800; font-size: 19px; letter-spacing: -0.02em; justify-content: center; margin-bottom: 8px; }
+        .auth-logo .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--grad-brand); flex: none; position: relative; box-shadow: 0 6px 18px -6px rgba(124,131,255,0.7); }
+        .auth-logo .mark::before { content:""; position:absolute; inset:6px; border-radius:4px; border:2px solid rgba(255,255,255,0.92); border-right-color:transparent; border-bottom-color:transparent; transform:rotate(45deg); }
+        .auth-logo b { color: #fff; }
+        .auth-logo span { color: var(--muted); font-weight: 600; }
+        .auth-tagline { text-align: center; font-size: 13.5px; color: var(--muted); margin-bottom: 28px; }
+        .auth-back { display: block; text-align: center; margin-top: 22px; font-size: 13.5px; color: var(--muted); text-decoration: none; }
+        .auth-back:hover { color: #fff; }
+
+        /* Tabs */
+        .auth-tabs { display: flex; margin-bottom: 26px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+        .auth-tab { flex:1; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px; padding:10px 0; font-size:14px; font-weight:600; color:var(--muted); cursor:pointer; font-family:inherit; transition:color .15s; }
+        .auth-tab:hover { color:#fff; }
+        .auth-tab.active { color:#fff; border-bottom-color:var(--brand); }
+
+        /* Forms */
+        .auth-form { display:flex; flex-direction:column; gap:16px; }
+        .auth-form label { font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px; }
+        .auth-form input, .auth-form select {
+            width:100%; padding:12px 14px;
+            background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14); border-radius:11px;
+            font-size:14px; color:#eef1ff; font-family:inherit; outline:none;
+            transition:border-color .15s, box-shadow .15s;
+        }
+        .auth-form input::placeholder { color:#6b7590; }
+        .auth-form input:focus, .auth-form select:focus {
+            border-color:#7c83ff; box-shadow:0 0 0 3px rgba(124,131,255,0.2);
+        }
+        .auth-form select option { background:#0d1040; }
+        .auth-hint { font-size:11.5px; color:var(--muted-2); font-weight:400; text-transform:none; letter-spacing:0; }
+
+        /* Buttons */
+        .btn-auth {
+            width:100%; padding:13px; border:none; border-radius:12px;
+            font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;
+            background:linear-gradient(120deg,#7c83ff 0%,#b15cff 55%,#36e2d4 120%);
+            color:#0a0c20; transition:transform .15s, box-shadow .2s;
+            box-shadow:0 12px 30px -10px rgba(124,131,255,0.7);
+        }
+        .btn-auth:hover { transform:translateY(-2px); box-shadow:0 16px 36px -10px rgba(150,110,255,0.85); }
+        .btn-auth:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+
+        /* Alert */
+        .auth-alert { display:none; padding:11px 13px; border-radius:10px; font-size:13px; font-weight:500; margin-bottom:4px; }
+        .auth-alert.show { display:block; }
+        .auth-alert.error   { background:rgba(255,107,139,0.15); color:#ff9ab0; border:1px solid rgba(255,107,139,0.3); }
+        .auth-alert.success { background:rgba(67,230,160,0.12); color:#6effa8; border:1px solid rgba(67,230,160,0.3); }
+
+        /* 2FA step */
+        .step { display:none; }
+        .step.active { display:flex; flex-direction:column; gap:16px; }
+        .code-hint { font-size:13.5px; color:var(--muted); text-align:center; line-height:1.6; }
+        .code-input {
+            text-align:center; font-size:28px; font-weight:800; letter-spacing:.25em;
+            padding:16px; font-family:'SF Mono','Consolas',monospace;
+        }
+        .resend-link { text-align:center; font-size:13px; color:var(--muted); }
+        .resend-link button { background:none; border:none; color:#9ea5ff; font-weight:600; cursor:pointer; font-family:inherit; }
+        .resend-link button:hover { color:#fff; }
+
+        /* Conditional registration fields */
+        .cond-field { display:none; }
+        .cond-field.show { display:flex; flex-direction:column; gap:16px; }
+    </style>
+</head>
+<body class="mirage">
+
+<div class="scene" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+</div>
+
+<div class="auth-scene">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <span class="mark"></span><b>Mirage</b><span>Bank</span>
+        </div>
+        <p class="auth-tagline">Secure online banking</p>
+
+        <div id="auth-alert" class="auth-alert"></div>
+
+        <!-- Login / Register tabs -->
+        <div class="auth-tabs" id="auth-tabs">
+            <button class="auth-tab active" data-target="step-login">Sign in</button>
+            <button class="auth-tab" data-target="step-register">Register</button>
+        </div>
+
+        <!-- ── Step: Login ───────────────────────────────────────── -->
+        <div class="step active" id="step-login">
+            <form class="auth-form" id="login-form">
+                <div>
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+                <div>
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-auth" id="login-btn">Sign in</button>
+            </form>
+        </div>
+
+        <!-- ── Step: Admin 2FA ──────────────────────────────────── -->
+        <div class="step" id="step-2fa">
+            <p class="code-hint">
+                We sent a 6-digit code to your admin email.<br>
+                Enter it below to complete sign-in.
+            </p>
+            <form class="auth-form" id="twofa-form">
+                <div>
+                    <label for="twofa-code">Verification code</label>
+                    <input type="text" id="twofa-code" class="code-input" placeholder="000000"
+                           maxlength="6" pattern="\d{6}" inputmode="numeric" autocomplete="one-time-code">
+                </div>
+                <button type="submit" class="btn-auth" id="twofa-btn">Verify</button>
+            </form>
+            <div class="resend-link">
+                Didn't receive it?
+                <button id="resend-btn">Resend code</button>
+            </div>
+        </div>
+
+        <!-- ── Step: Register ───────────────────────────────────── -->
+        <div class="step" id="step-register">
+            <form class="auth-form" id="register-form">
+                <div>
+                    <label for="reg-name">Full name</label>
+                    <input type="text" id="reg-name" placeholder="Jane Smith" required autocomplete="name">
+                </div>
+                <div>
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" placeholder="you@example.com" required autocomplete="email">
+                </div>
+                <div>
+                    <label for="reg-password">Password <span class="auth-hint">(8–72 characters)</span></label>
+                    <input type="password" id="reg-password" placeholder="Create a password" required minlength="8" maxlength="72" autocomplete="new-password">
+                </div>
+                <div>
+                    <label for="reg-type">Account type</label>
+                    <select id="reg-type">
+                        <option value="personal">Personal</option>
+                        <option value="youth">Youth</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+
+                <!-- Youth fields -->
+                <div class="cond-field" id="youth-fields">
+                    <div>
+                        <label for="reg-guardian">Guardian email <span class="auth-hint">(must have a Mirage account)</span></label>
+                        <input type="email" id="reg-guardian" placeholder="guardian@example.com" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Business fields -->
+                <div class="cond-field" id="business-fields">
+                    <div>
+                        <label for="reg-company">Company name</label>
+                        <input type="text" id="reg-company" placeholder="Acme Ltd." maxlength="200">
+                    </div>
+                    <div>
+                        <label for="reg-reg">Registration number <span class="auth-hint">(optional)</span></label>
+                        <input type="text" id="reg-reg" placeholder="IE12345678" maxlength="100">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth" id="register-btn">Create account</button>
+            </form>
+        </div>
+    </div>
+    <a class="auth-back" href="index.html">← Back to Mirage Bank</a>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+    // If already signed in, route by role.
+    (async () => {
+        if (!getToken()) return;
+        const me = await getMe();
+        if (me) window.location.href = me.role === 'admin' ? 'admin.html' : 'dashboard.html';
+        else clearToken();
+    })();
+
+    // Deep-link ?register
+    if (/(\?|&)register\b/.test(location.search) || location.hash === '#register') {
+        document.querySelector('.auth-tab[data-target="step-register"]').click();
+    }
+
+    const alertEl = document.getElementById('auth-alert');
+
+    function showAuthAlert(msg, type) {
+        alertEl.textContent = msg;
+        alertEl.className = 'auth-alert show ' + type;
+    }
+    function hideAuthAlert() { alertEl.className = 'auth-alert'; }
+
+    // Tabs
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const target = tab.dataset.target;
+            ['step-login','step-register'].forEach(id => {
+                document.getElementById(id).classList.toggle('active', id === target);
+            });
+            document.getElementById('step-2fa').classList.remove('active');
+            hideAuthAlert();
+        });
+    });
+
+    // ── Login ────────────────────────────────────────────────────
+    // Persist across soft refreshes (cleared on full logout or successful verify)
+    let _pendingToken = sessionStorage.getItem('mb_pending_token') || null;
+
+    // If we already have a pending token, restore the 2FA step immediately
+    if (_pendingToken) {
+        document.getElementById('auth-tabs').style.display = 'none';
+        document.getElementById('step-login').classList.remove('active');
+        document.getElementById('step-2fa').classList.add('active');
+        showAuthAlert('Enter the verification code sent to your email.', 'success');
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideAuthAlert();
+        const btn = document.getElementById('login-btn');
+        btn.disabled = true; btn.textContent = 'Signing in…';
+
+        const { ok, data } = await apiFetch('POST', '/login', {
+            email:    document.getElementById('login-email').value.trim(),
+            password: document.getElementById('login-password').value,
+        });
+
+        if (ok && data.requires_2fa) {
+            _pendingToken = data.pending_token;
+            sessionStorage.setItem('mb_pending_token', _pendingToken);
+            document.getElementById('auth-tabs').style.display = 'none';
+            document.getElementById('step-login').classList.remove('active');
+            document.getElementById('step-2fa').classList.add('active');
+            showAuthAlert('Check your email for the verification code.', 'success');
+        } else if (ok) {
+            setToken(data.access_token);
+            showAuthAlert('Signed in. Redirecting…', 'success');
+            const dest = data.role === 'admin' ? 'admin.html' : 'dashboard.html';
+            setTimeout(() => window.location.href = dest, 500);
+        } else {
+            showAuthAlert(handleApiError(data, 'Sign in failed. Please check your credentials.'), 'error');
+        }
+        btn.disabled = false; btn.textContent = 'Sign in';
+    });
+
+    // ── 2FA ──────────────────────────────────────────────────────
+    document.getElementById('twofa-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideAuthAlert();
+        const btn = document.getElementById('twofa-btn');
+        btn.disabled = true; btn.textContent = 'Verifying…';
+
+        const code = document.getElementById('twofa-code').value.trim();
+        const { ok, data } = await apiFetch('POST', '/auth/2fa', {
+            pending_token: _pendingToken, code,
+        });
+
+        if (ok) {
+            sessionStorage.removeItem('mb_pending_token');
+            setToken(data.access_token);
+            showAuthAlert('Verified. Redirecting…', 'success');
+            setTimeout(() => window.location.href = 'admin.html', 500);
+        } else {
+            showAuthAlert(handleApiError(data, 'Invalid code. Please try again.'), 'error');
+        }
+        btn.disabled = false; btn.textContent = 'Verify';
+    });
+
+    document.getElementById('resend-btn').addEventListener('click', async () => {
+        if (!_pendingToken) return;
+        const { ok, data } = await apiFetch('POST', '/auth/resend-2fa', { pending_token: _pendingToken });
+        if (ok) showAuthAlert('A new code has been sent.', 'success');
+        else showAuthAlert(handleApiError(data, 'Could not resend code.'), 'error');
+    });
+
+    // ── Register ─────────────────────────────────────────────────
+    document.getElementById('reg-type').addEventListener('change', function() {
+        document.getElementById('youth-fields').classList.toggle('show', this.value === 'youth');
+        document.getElementById('business-fields').classList.toggle('show', this.value === 'business');
+
+        document.getElementById('reg-guardian').required = this.value === 'youth';
+        document.getElementById('reg-company').required  = this.value === 'business';
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        hideAuthAlert();
+        const btn = document.getElementById('register-btn');
+        btn.disabled = true; btn.textContent = 'Creating account…';
+
+        const type = document.getElementById('reg-type').value;
+        const body = {
+            name:         document.getElementById('reg-name').value.trim(),
+            email:        document.getElementById('reg-email').value.trim(),
+            password:     document.getElementById('reg-password').value,
+            account_type: type,
+        };
+        if (type === 'youth')    body.guardian_email = document.getElementById('reg-guardian').value.trim();
+        if (type === 'business') {
+            body.company_name = document.getElementById('reg-company').value.trim();
+            body.company_reg  = document.getElementById('reg-reg').value.trim();
+        }
+
+        const { ok, data } = await apiFetch('POST', '/register', body);
+        if (ok) {
+            showAuthAlert('Account created. You can now sign in.', 'success');
+            document.getElementById('register-form').reset();
+            document.getElementById('youth-fields').classList.remove('show');
+            document.getElementById('business-fields').classList.remove('show');
+            document.querySelector('.auth-tab[data-target="step-login"]').click();
+        } else {
+            const msg = Array.isArray(data.detail)
+                ? data.detail.map(e => e.msg.replace('Value error, ','')).join(' · ')
+                : (data.detail || 'Registration failed.');
+            showAuthAlert(msg, 'error');
+        }
+        btn.disabled = false; btn.textContent = 'Create account';
+    });
+</script>
+</body>
+</html>

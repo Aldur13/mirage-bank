@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirage Bank — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="app">
+
+<!-- ── Mobile topbar ──────────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-brand">
+        <span class="topbar-mark"></span>
+        <span class="topbar-name">Mirage Bank</span>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+
+<!-- ── Sidebar ────────────────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+    <a class="sidebar-logo" href="dashboard.html">
+        <span class="sidebar-mark"></span>
+        <span class="sidebar-name">Mirage<b>Bank</b></span>
+    </a>
+
+    <div class="nav-group">
+        <a class="nav-item active" href="dashboard.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/><rect x="11" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="2" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="11" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item" href="dashboard.html#transactions">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M13 6l4 4-4 4M7 6L3 10l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Transactions
+        </a>
+        <a class="nav-item" href="support.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 5v5m0 2.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Support
+        </a>
+        <a class="nav-item" href="settings.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M10 2v2m0 12v2M2 10h2m12 0h2m-3.17-4.83L11.4 6.6M6.6 13.4l-1.43 1.43m0-9.66L6.6 6.6M13.4 13.4l1.43 1.43" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Settings
+        </a>
+        <a class="nav-item" href="admin.html" id="admin-nav-item" style="display:none">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11l-3.7 2.5 1.4-4.3L4 6.5h4.5L10 2z" fill="currentColor" opacity=".9"/></svg>
+            Admin
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="user-avatar" id="sidebar-avatar"></div>
+            <div class="user-meta">
+                <span class="user-name"  id="sidebar-name">Loading…</span>
+                <span class="user-email" id="sidebar-email"></span>
+            </div>
+        </div>
+        <button class="signout-btn" id="signout-btn" title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13 7l4 3-4 3M7 10h10M7 3H4a1 1 0 00-1 1v12a1 1 0 001 1h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </div>
+</nav>
+
+<!-- ── Main content ───────────────────────────────────────────────── -->
+<main class="main">
+
+    <!-- Balance hero -->
+    <section class="balance-card" id="balance-section">
+        <div class="balance-header">
+            <div>
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount" id="balance-amount">—</div>
+                <div class="balance-sub" id="account-number"></div>
+            </div>
+            <div class="balance-actions">
+                <button class="btn-hero" id="open-transfer">Transfer</button>
+                <button class="btn-hero btn-hero-outline" id="open-withdraw">Withdraw</button>
+            </div>
+        </div>
+        <div class="balance-chip" id="account-type-badge"></div>
+    </section>
+
+    <!-- Guardian banner (youth accounts) -->
+    <div class="alert alert-warn" id="guardian-banner" style="display:none"></div>
+
+    <!-- Quick stats row -->
+    <div class="stats-row" id="stats-row"></div>
+
+    <!-- Guardian panel (shown when current user is a guardian) -->
+    <section class="card" id="guardian-panel" style="display:none">
+        <div class="card-head">
+            <h2 class="card-title">Ward account</h2>
+            <div id="guardian-freeze-wrap"></div>
+        </div>
+        <div class="card-body" id="guardian-body">
+            <p class="empty-hint">Loading…</p>
+        </div>
+    </section>
+
+    <!-- Business panel (shown for business account members) -->
+    <section class="card" id="business-panel" style="display:none">
+        <div class="card-head">
+            <h2 class="card-title">Team members</h2>
+            <button class="btn btn-ghost btn-sm" id="open-invite-btn" style="display:none">Invite member</button>
+        </div>
+        <div class="card-body" id="business-body">
+            <p class="empty-hint">Loading…</p>
+        </div>
+    </section>
+
+    <!-- Transactions -->
+    <section class="card" id="transactions">
+        <div class="card-head">
+            <h2 class="card-title">Transaction history</h2>
+            <button class="btn-ghost" id="refresh-tx">Refresh</button>
+        </div>
+        <div class="card-body">
+            <div id="tx-list"></div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ── Invite member modal ─────────────────────────────────────────── -->
+<div class="modal" id="modal-invite">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Invite team member</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <form id="invite-form">
+            <div class="form-field">
+                <label for="invite-email">Email address</label>
+                <input type="email" id="invite-email" placeholder="colleague@example.com" required autocomplete="off">
+                <span class="form-hint">Must already have a Mirage Bank account.</span>
+            </div>
+            <div class="form-field">
+                <label for="invite-role">Role</label>
+                <select id="invite-role">
+                    <option value="manager">Manager — can invite members, make transfers</option>
+                    <option value="employee">Employee — can view balance and make transfers</option>
+                </select>
+            </div>
+            <div id="invite-alert" class="alert"></div>
+            <button type="submit" class="btn btn-primary" id="invite-btn">Send invite</button>
+        </form>
+    </div>
+</div>
+
+<!-- ── Transfer modal ─────────────────────────────────────────────── -->
+<div class="modal" id="modal-transfer">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Transfer funds</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <form id="transfer-form">
+            <div class="form-field">
+                <label for="tx-recipient">Recipient email address</label>
+                <input type="email" id="tx-recipient" placeholder="recipient@example.com" required autocomplete="off">
+            </div>
+            <div class="form-field">
+                <label for="tx-amount">Amount (€)</label>
+                <input type="number" id="tx-amount" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+            <div id="transfer-alert" class="alert"></div>
+            <button type="submit" class="btn btn-primary" id="transfer-btn">Send transfer</button>
+        </form>
+    </div>
+</div>
+
+<!-- ── Withdraw modal ─────────────────────────────────────────────── -->
+<div class="modal" id="modal-withdraw">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Withdraw funds</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <form id="withdraw-form">
+            <div class="form-field">
+                <label for="wd-amount">Amount (€)</label>
+                <input type="number" id="wd-amount" placeholder="0.00" min="0.01" step="0.01" required>
+            </div>
+            <div id="withdraw-alert" class="alert"></div>
+            <button type="submit" class="btn btn-primary" id="withdraw-btn">Withdraw</button>
+        </form>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+    let _me = null;
+
+    async function init() {
+        loadTheme();
+        _me = await requireAuth(false);
+        if (!_me) return;
+
+        document.getElementById('signout-btn').addEventListener('click', () => {
+            clearToken(); window.location.href = 'login.html';
+        });
+        initSidebar();
+        bindModalClose('modal-transfer');
+        bindModalClose('modal-withdraw');
+
+        document.getElementById('open-transfer').addEventListener('click', () => {
+            hideAlert(document.getElementById('transfer-alert'));
+            openModal('modal-transfer');
+        });
+        document.getElementById('open-withdraw').addEventListener('click', () => {
+            hideAlert(document.getElementById('withdraw-alert'));
+            openModal('modal-withdraw');
+        });
+
+        bindModalClose('modal-invite');
+
+        await loadBalance();
+        // Load panels in parallel after balance (account_type is now known)
+        await Promise.all([
+            loadTransactions(),
+            loadGuardianPanel(),
+            loadBusinessPanel(),
+        ]);
+        showGuardianBanner();
+
+        document.getElementById('refresh-tx').addEventListener('click', loadTransactions);
+        document.getElementById('transfer-form').addEventListener('submit', handleTransfer);
+        document.getElementById('withdraw-form').addEventListener('submit', handleWithdraw);
+        document.getElementById('invite-form').addEventListener('submit', handleInvite);
+
+        if (location.hash === '#transactions') {
+            document.getElementById('transactions').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // ── Guardian panel ───────────────────────────────────────────
+    async function loadGuardianPanel() {
+        const { ok, data } = await apiFetch('GET', '/guardian/ward');
+        if (!ok) return; // not a guardian
+
+        const panel = document.getElementById('guardian-panel');
+        panel.style.display = '';
+
+        const isFrozen = data.account_status === 'frozen';
+        document.getElementById('guardian-freeze-wrap').innerHTML = `
+            <button class="btn btn-${isFrozen ? 'success' : 'warn'} btn-sm" id="guardian-freeze-btn">
+                ${isFrozen ? 'Unfreeze account' : 'Freeze account'}
+            </button>`;
+
+        document.getElementById('guardian-body').innerHTML = `
+            <div class="user-detail-grid">
+                <div class="detail-row"><span>Ward</span><span>${escHtml(data.ward_name)}</span></div>
+                <div class="detail-row"><span>Email</span><span>${escHtml(data.ward_email)}</span></div>
+                <div class="detail-row"><span>Balance</span><span>${formatMoney(data.balance_cents)}</span></div>
+                <div class="detail-row"><span>Status</span><span><span class="badge badge-${escHtml(data.account_status)}">${escHtml(data.account_status)}</span></span></div>
+            </div>`;
+
+        document.getElementById('guardian-freeze-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('guardian-freeze-btn');
+            btn.disabled = true;
+            const endpoint = isFrozen ? '/guardian/unfreeze' : '/guardian/freeze';
+            const { ok: fok, data: fd } = await apiFetch('POST', endpoint);
+            if (fok) {
+                showToast(isFrozen ? 'Ward account unfrozen.' : 'Ward account frozen.', 'success');
+                await loadGuardianPanel();
+            } else {
+                showToast(handleApiError(fd, 'Action failed.'), 'error');
+                btn.disabled = false;
+            }
+        });
+    }
+
+    // ── Business members panel ───────────────────────────────────
+    let _isBusinessOwner = false;
+
+    async function loadBusinessPanel() {
+        if ((_me.account_type || 'personal') !== 'business') return;
+
+        const { ok, data } = await apiFetch('GET', '/business/members');
+        if (!ok) return;
+
+        const panel = document.getElementById('business-panel');
+        panel.style.display = '';
+
+        _isBusinessOwner = data.members.some(m => m.user_id === _me.id && m.role === 'owner');
+        const inviteBtn = document.getElementById('open-invite-btn');
+        if (_isBusinessOwner) inviteBtn.style.display = '';
+        inviteBtn.onclick = () => { hideAlert(document.getElementById('invite-alert')); openModal('modal-invite'); };
+
+        renderBusinessMembers(data);
+    }
+
+    function renderBusinessMembers(data) {
+        const rows = (data.members || []).map(m => `
+            <div class="tx-row">
+                <div class="tx-icon" style="background:var(--surface-3);font-size:12px;font-weight:700;color:#0a0c20;background:var(--grad)">
+                    ${escHtml(getInitials(m.name))}
+                </div>
+                <div class="tx-info">
+                    <div class="tx-desc">${escHtml(m.name)}</div>
+                    <div class="tx-date">${escHtml(m.email)}</div>
+                </div>
+                <span class="badge badge-${escHtml(m.role)}" style="margin-right:8px">${escHtml(m.role)}</span>
+                ${_isBusinessOwner && m.role !== 'owner'
+                    ? `<button class="btn-table-action" onclick="removeMember('${escHtml(m.user_id)}')">Remove</button>`
+                    : ''}
+            </div>`).join('');
+
+        document.getElementById('business-body').innerHTML = `
+            <p class="section-hint" style="margin-bottom:14px">${escHtml(data.company_name)}</p>
+            <div class="tx-list">${rows || '<p class="empty-hint">No members yet.</p>'}</div>`;
+    }
+
+    async function removeMember(userId) {
+        if (!confirm('Remove this member from the business account?')) return;
+        const { ok, data } = await apiFetch('DELETE', `/business/members/${userId}`);
+        if (ok) {
+            showToast('Member removed.', 'success');
+            await loadBusinessPanel();
+        } else {
+            showToast(handleApiError(data, 'Remove failed.'), 'error');
+        }
+    }
+
+    async function handleInvite(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('invite-alert');
+        hideAlert(alertEl);
+        const btn = document.getElementById('invite-btn');
+        btn.disabled = true; btn.textContent = 'Inviting…';
+
+        const { ok, data } = await apiFetch('POST', '/business/invite', {
+            email: document.getElementById('invite-email').value.trim(),
+            role:  document.getElementById('invite-role').value,
+        });
+
+        if (ok) {
+            closeModal('modal-invite');
+            document.getElementById('invite-form').reset();
+            showToast(data.message || 'Member invited.', 'success');
+            await loadBusinessPanel();
+        } else {
+            showError(alertEl, handleApiError(data, 'Invite failed.'));
+        }
+        btn.disabled = false; btn.textContent = 'Send invite';
+    }
+
+    async function loadBalance() {
+        const { ok, data } = await apiFetch('GET', '/balance');
+        if (!ok) return;
+
+        document.getElementById('balance-amount').textContent = formatMoney(data.balance_cents);
+        document.getElementById('account-number').textContent = data.account_id ? data.account_id.slice(0, 8).toUpperCase() : '';
+
+        const typeBadge = document.getElementById('account-type-badge');
+        const type = data.account_type || _me.account_type || 'personal';
+        const labels = { personal: 'Personal', youth: 'Youth', business: 'Business' };
+        typeBadge.textContent = labels[type] || titleCase(type);
+        typeBadge.className = 'balance-chip chip-' + type;
+
+        document.getElementById('stats-row').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-label">Account ID</div>
+                <div class="stat-value mono">${escHtml((data.account_id || '—').slice(0, 8).toUpperCase())}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Status</div>
+                <div class="stat-value"><span class="badge badge-${escHtml(data.status || 'active')}">${escHtml(data.status || 'active')}</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Account type</div>
+                <div class="stat-value">${escHtml(labels[type] || titleCase(type))}</div>
+            </div>
+        `;
+
+        if (data.status !== 'active') {
+            document.getElementById('open-transfer').disabled = true;
+            document.getElementById('open-withdraw').disabled = true;
+        }
+    }
+
+    async function loadTransactions() {
+        const listEl = document.getElementById('tx-list');
+        listEl.innerHTML = '<p class="empty-hint">Loading…</p>';
+
+        const { ok, data } = await apiFetch('GET', '/transactions');
+        if (!ok || !data.transactions || data.transactions.length === 0) {
+            listEl.innerHTML = '<p class="empty-hint">No transactions yet.</p>';
+            return;
+        }
+
+        const rows = data.transactions.map(tx => {
+            const isCredit = tx.direction === 'credit';
+            const sign = isCredit ? '+' : '−';
+            const colorClass = isCredit ? 'tx-credit' : 'tx-debit';
+            return `
+                <div class="tx-row">
+                    <div class="tx-icon ${colorClass}">
+                        ${isCredit
+                            ? `<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 16V4m-5 7l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                            : `<svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12m5-7L10 4 5 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+                        }
+                    </div>
+                    <div class="tx-info">
+                        <div class="tx-desc">${escHtml(tx.description || titleCase(tx.type))}</div>
+                        <div class="tx-date">${formatDateTime(tx.timestamp)}</div>
+                    </div>
+                    <div class="tx-amount ${colorClass}">${sign}${formatMoney(Math.abs(tx.amount_cents))}</div>
+                </div>`;
+        }).join('');
+
+        listEl.innerHTML = `<div class="tx-list">${rows}</div>`;
+    }
+
+    function showGuardianBanner() {
+        if (_me.account_type !== 'youth') return;
+        const banner = document.getElementById('guardian-banner');
+        banner.style.display = '';
+        banner.textContent = 'This account is monitored by a guardian. A guardian can view your transactions and freeze this account.';
+    }
+
+    async function handleTransfer(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('transfer-alert');
+        hideAlert(alertEl);
+        const btn = document.getElementById('transfer-btn');
+        btn.disabled = true; btn.textContent = 'Sending…';
+
+        const recipient = document.getElementById('tx-recipient').value.trim();
+        const amount_cents = Math.round(parseFloat(document.getElementById('tx-amount').value) * 100);
+
+        const { ok, data } = await apiFetch('POST', '/transfer', { to_email: recipient, amount_cents });
+        if (ok) {
+            closeModal('modal-transfer');
+            document.getElementById('transfer-form').reset();
+            showToast('Transfer sent successfully.', 'success');
+            await loadBalance();
+            await loadTransactions();
+        } else {
+            showError(alertEl, handleApiError(data, 'Transfer failed.'));
+        }
+        btn.disabled = false; btn.textContent = 'Send transfer';
+    }
+
+    async function handleWithdraw(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('withdraw-alert');
+        hideAlert(alertEl);
+        const btn = document.getElementById('withdraw-btn');
+        btn.disabled = true; btn.textContent = 'Processing…';
+
+        const amount_cents = Math.round(parseFloat(document.getElementById('wd-amount').value) * 100);
+        const { ok, data } = await apiFetch('POST', '/withdraw', { amount_cents });
+        if (ok) {
+            closeModal('modal-withdraw');
+            document.getElementById('withdraw-form').reset();
+            showToast('Withdrawal successful.', 'success');
+            await loadBalance();
+            await loadTransactions();
+        } else {
+            showError(alertEl, handleApiError(data, 'Withdrawal failed.'));
+        }
+        btn.disabled = false; btn.textContent = 'Withdraw';
+    }
+
+    init();
+</script>
+</body>
+</html>

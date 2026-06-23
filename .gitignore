@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Environment — never commit secrets
+.env
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mirage Bank — Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="app.css">
+</head>
+<body class="app">
+
+<!-- ── Mobile topbar ───────────────────────────────────────────── -->
+<header class="topbar">
+    <div class="topbar-brand">
+        <span class="topbar-mark"></span>
+        <span class="topbar-name">Mirage Bank</span>
+    </div>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
+</header>
+
+<!-- ── Sidebar ────────────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar">
+    <a class="sidebar-logo" href="dashboard.html">
+        <span class="sidebar-mark"></span>
+        <span class="sidebar-name">Mirage<b>Bank</b></span>
+    </a>
+
+    <div class="nav-group">
+        <a class="nav-item" href="dashboard.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/><rect x="11" y="2" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="2" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".5"/><rect x="11" y="11" width="7" height="7" rx="2" fill="currentColor" opacity=".8"/></svg>
+            Dashboard
+        </a>
+        <a class="nav-item active" href="support.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 5v5m0 2.5v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Support
+        </a>
+        <a class="nav-item" href="settings.html">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M10 2v2m0 12v2M2 10h2m12 0h2m-3.17-4.83L11.4 6.6M6.6 13.4l-1.43 1.43m0-9.66L6.6 6.6M13.4 13.4l1.43 1.43" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Settings
+        </a>
+        <a class="nav-item" href="admin.html" id="admin-nav-item" style="display:none">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.5 4.5H16l-3.7 2.7 1.4 4.3L10 11l-3.7 2.5 1.4-4.3L4 6.5h4.5L10 2z" fill="currentColor" opacity=".9"/></svg>
+            Admin
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="user-avatar" id="sidebar-avatar"></div>
+            <div class="user-meta">
+                <span class="user-name"  id="sidebar-name">Loading…</span>
+                <span class="user-email" id="sidebar-email"></span>
+            </div>
+        </div>
+        <button class="signout-btn" id="signout-btn" title="Sign out">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M13 7l4 3-4 3M7 10h10M7 3H4a1 1 0 00-1 1v12a1 1 0 001 1h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </div>
+</nav>
+
+<!-- ── Main ────────────────────────────────────────────────────── -->
+<main class="main">
+
+    <section class="card">
+        <div class="card-head">
+            <h2 class="card-title">Support tickets</h2>
+            <button class="btn btn-primary btn-sm" id="new-ticket-btn">New ticket</button>
+        </div>
+        <div class="card-body" id="tickets-list">
+            <p class="empty-hint">Loading…</p>
+        </div>
+    </section>
+
+</main>
+
+<!-- ── New ticket modal ────────────────────────────────────────── -->
+<div class="modal" id="modal-new-ticket">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>Open a support ticket</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <form id="new-ticket-form">
+            <div class="form-field">
+                <label for="ticket-subject">Subject</label>
+                <input type="text" id="ticket-subject" placeholder="Briefly describe your issue" required maxlength="200">
+            </div>
+            <div class="form-field">
+                <label for="ticket-body">Message</label>
+                <textarea id="ticket-body" rows="5" placeholder="Describe your issue in detail…" required maxlength="4000"></textarea>
+            </div>
+            <div id="new-ticket-alert" class="alert"></div>
+            <button type="submit" class="btn btn-primary" id="new-ticket-submit">Submit ticket</button>
+        </form>
+    </div>
+</div>
+
+<!-- ── Ticket detail modal ─────────────────────────────────────── -->
+<div class="modal" id="modal-ticket-detail">
+    <div class="modal-box modal-box-wide">
+        <div class="modal-head">
+            <h3 id="ticket-detail-title">Ticket</h3>
+            <button class="modal-close" aria-label="Close">×</button>
+        </div>
+        <div id="ticket-detail-body"></div>
+    </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+    let _me = null;
+
+    async function init() {
+        loadTheme();
+        _me = await requireAuth(false);
+        if (!_me) return;
+
+        document.getElementById('signout-btn').addEventListener('click', () => {
+            clearToken(); window.location.href = 'login.html';
+        });
+        initSidebar();
+        bindModalClose('modal-new-ticket');
+        bindModalClose('modal-ticket-detail');
+
+        document.getElementById('new-ticket-btn').addEventListener('click', () => {
+            hideAlert(document.getElementById('new-ticket-alert'));
+            openModal('modal-new-ticket');
+        });
+        document.getElementById('new-ticket-form').addEventListener('submit', handleNewTicket);
+
+        await loadTickets();
+    }
+
+    async function loadTickets() {
+        const listEl = document.getElementById('tickets-list');
+        listEl.innerHTML = '<p class="empty-hint">Loading…</p>';
+
+        const { ok, data } = await apiFetch('GET', '/support/tickets');
+        if (!ok) { listEl.innerHTML = '<p class="empty-hint error-hint">Failed to load tickets.</p>'; return; }
+
+        const tickets = data.tickets || [];
+        if (!tickets.length) {
+            listEl.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M8 10h8M8 14h5M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div class="empty-title">No tickets yet</div>
+                    <div class="empty-sub">Open a ticket and our support team will get back to you.</div>
+                    <button class="btn btn-primary btn-sm" id="new-ticket-empty">Open a ticket</button>
+                </div>`;
+            document.getElementById('new-ticket-empty').addEventListener('click', () => openModal('modal-new-ticket'));
+            return;
+        }
+
+        const rows = tickets.map(t => `
+            <div class="ticket-row" onclick="openTicketDetail('${escHtml(t.id)}')">
+                <div class="ticket-row-main">
+                    <div class="ticket-subject">${escHtml(t.subject)}</div>
+                    <div class="ticket-meta">
+                        <span class="badge badge-${escHtml(t.status)}">${escHtml(t.status.replace('_',' '))}</span>
+                        <span class="ticket-date">${formatDate(t.created_at)}</span>
+                        <span class="ticket-msgs">${t.message_count} message${t.message_count !== 1 ? 's' : ''}</span>
+                    </div>
+                </div>
+                <svg class="ticket-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>`).join('');
+
+        listEl.innerHTML = `<div class="ticket-list">${rows}</div>`;
+    }
+
+    async function openTicketDetail(ticketId) {
+        document.getElementById('ticket-detail-body').innerHTML = '<p class="empty-hint">Loading…</p>';
+        openModal('modal-ticket-detail');
+
+        const { ok, data } = await apiFetch('GET', `/support/tickets/${ticketId}`);
+        if (!ok) {
+            document.getElementById('ticket-detail-body').innerHTML = '<p class="empty-hint error-hint">Failed to load ticket.</p>';
+            return;
+        }
+
+        document.getElementById('ticket-detail-title').textContent = data.subject;
+        const isClosed = data.status === 'closed';
+
+        const messages = (data.messages || []).map(m => `
+            <div class="msg-bubble ${m.is_staff ? 'msg-staff' : 'msg-user'}">
+                <div class="msg-meta">${escHtml(m.author_name || (m.is_staff ? 'Support team' : 'You'))} · ${formatDateTime(m.created_at)}</div>
+                <div class="msg-body">${escHtml(m.content)}</div>
+            </div>`).join('');
+
+        document.getElementById('ticket-detail-body').innerHTML = `
+            <div class="ticket-meta-row">
+                <span class="badge badge-${escHtml(data.status)}">${escHtml(data.status.replace('_',' '))}</span>
+                <span class="meta-text">Opened ${formatDate(data.created_at)}</span>
+            </div>
+            <div class="msg-thread">${messages}</div>
+            <div id="detail-alert" class="alert"></div>
+            ${isClosed ? '<p class="empty-hint" style="margin-top:12px;">This ticket is closed.</p>' : `
+            <form id="reply-form" class="reply-form">
+                <textarea id="reply-body" rows="3" placeholder="Write a reply…" required maxlength="4000"></textarea>
+                <div class="reply-actions">
+                    <button type="submit" class="btn btn-primary btn-sm">Send reply</button>
+                    <button type="button" class="btn btn-ghost btn-sm" id="close-ticket-btn">Close ticket</button>
+                </div>
+            </form>`}`;
+
+        if (!isClosed) {
+            document.getElementById('reply-form').addEventListener('submit', async e => {
+                e.preventDefault();
+                const alertEl = document.getElementById('detail-alert');
+                hideAlert(alertEl);
+                const content = document.getElementById('reply-body').value.trim();
+                const { ok: rok, data: rd } = await apiFetch('POST', `/support/tickets/${ticketId}/messages`, { content });
+                if (rok) {
+                    document.getElementById('reply-body').value = '';
+                    showToast('Reply sent.', 'success');
+                    await openTicketDetail(ticketId);
+                    await loadTickets();
+                } else {
+                    showError(alertEl, handleApiError(rd, 'Failed to send reply.'));
+                }
+            });
+
+            document.getElementById('close-ticket-btn').addEventListener('click', async () => {
+                const { ok: cok, data: cd } = await apiFetch('POST', `/support/tickets/${ticketId}/close`);
+                if (cok) {
+                    showToast('Ticket closed.', 'success');
+                    closeModal('modal-ticket-detail');
+                    await loadTickets();
+                } else {
+                    showToast(handleApiError(cd, 'Failed to close ticket.'), 'error');
+                }
+            });
+        }
+    }
+
+    async function handleNewTicket(e) {
+        e.preventDefault();
+        const alertEl = document.getElementById('new-ticket-alert');
+        hideAlert(alertEl);
+        const btn = document.getElementById('new-ticket-submit');
+        btn.disabled = true; btn.textContent = 'Submitting…';
+
+        const { ok, data } = await apiFetch('POST', '/support/tickets', {
+            subject: document.getElementById('ticket-subject').value.trim(),
+            message: document.getElementById('ticket-body').value.trim(),
+        });
+
+        if (ok) {
+            document.getElementById('new-ticket-form').reset();
+            closeModal('modal-new-ticket');
+            showToast('Ticket opened. We\'ll get back to you soon.', 'success');
+            await loadTickets();
+        } else {
+            showError(alertEl, handleApiError(data, 'Failed to create ticket.'));
+        }
+        btn.disabled = false; btn.textContent = 'Submit ticket';
+    }
+
+    init();
+</script>
+</body>
+</html>
