@@ -11,9 +11,14 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 60
 
     # Comma-separated list of allowed browser origins for CORS.
-    # Override in production with the deployed Vercel domain, e.g.
-    #   CORS_ORIGINS=https://your-app.vercel.app
-    cors_origins: str = "http://localhost:8913,http://localhost:4173,http://127.0.0.1:8913,http://127.0.0.1:4173"
+    # In production, override with your deployed Vercel domain.
+    cors_origins: str = (
+        "http://localhost:8913,"
+        "http://localhost:4173,"
+        "http://127.0.0.1:8913,"
+        "http://127.0.0.1:4173,"
+        "https://mirage-bank.vercel.app"
+    )
 
     # SMTP — optional. If smtp_host is empty, emails are printed to console (dev mode).
     smtp_host: str = ""
@@ -24,7 +29,10 @@ class Settings(BaseSettings):
 
     app_env: str = "development"
 
-    model_config = {"env_file": "../.env"}
+    model_config = {
+        "env_file": "../.env",
+        "extra": "ignore",
+    }
 
 
 settings = Settings()

@@ -23,9 +23,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Explicit origin allowlist. Auth is a Bearer token in localStorage (not a cookie),
-# so credentials are not needed — and "*" + credentials is rejected by browsers anyway.
-origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+# Safe CORS fallback: use env value if provided, otherwise default to local + production origins.
+default_origins = [
+    "https://mirage-bank.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+raw_origins = getattr(settings, "cors_origins", "") or ""
+origins = [o.strip() for o in raw_origins.split(",") if o.strip()] or default_origins
 
 app.add_middleware(
     CORSMiddleware,
