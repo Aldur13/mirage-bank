@@ -4,7 +4,7 @@
 //
 // After deploying the backend, replace YOUR-BACKEND-URL below with the real host
 // (e.g. https://mirage-bank.onrender.com) and redeploy the frontend.
-window.API_BASE_URL =
+window.API_BASE_URL = "https://mirage-bank.onrender.com";
     (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
         ? 'http://localhost:8000'
         : 'https://YOUR-BACKEND-URL.onrender.com';
