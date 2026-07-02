@@ -3,18 +3,11 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, status
 
-from auth import (
-    create_pending_token, create_token,
-    decode_pending_token,
-    generate_otp, hash_otp, hash_password, verify_password,
-)
+from auth import create_token, hash_password, verify_password
 from database import get_session
-from email_service import EmailDeliveryError, send_login_otp
 from models import (
     LoginRequest, LoginResponse,
     RegisterRequest, RegisterResponse, UserResponse,
-    TwoFARequest, TwoFAResponse,
-    ResendOTPRequest,
 )
 
 router = APIRouter()
@@ -164,103 +157,5 @@ def login(body: LoginRequest):
     if user["status"] == "frozen":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is frozen. Please contact support.")
 
-    # All accounts: require an emailed verification code before issuing a full token
-    pending_token = create_pending_token(user["id"])
-    _create_otp(user["id"], user["email"])
-    return LoginResponse(requires_2fa=True, pending_token=pending_token)
-
-
-@router.post("/auth/2fa", response_model=TwoFAResponse)
-def verify_2fa(body: TwoFARequest):
-    import jwt as pyjwt
-    try:
-        user_id = decode_pending_token(body.pending_token)
-    except pyjwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired verification session")
-
-    now_iso = datetime.now(timezone.utc).isoformat()
-    code_hash = hash_otp(body.code)
-
-    with get_session() as session:
-        result = session.run(
-            """
-            MATCH (u:User {id: $user_id})-[:HAS_OTP]->(o:OTPCode)
-            WHERE o.used = false AND o.expires_at > $now AND o.code_hash = $code_hash
-            SET o.used = true
-            RETURN u.role AS role, u.status AS status
-            """,
-            user_id=user_id, now=now_iso, code_hash=code_hash,
-        ).single()
-
-    if result is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired verification code")
-
-    if result["status"] == "disabled":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account has been disabled")
-
-    token = create_token(user_id)
-    return TwoFAResponse(access_token=token, role=result["role"])
-
-
-@router.post("/auth/resend-2fa")
-def resend_2fa(body: ResendOTPRequest):
-    import jwt as pyjwt
-    try:
-        user_id = decode_pending_token(body.pending_token)
-    except pyjwt.PyJWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired verification session")
-
-    with get_session() as session:
-        result = session.run(
-            "MATCH (u:User {id: $user_id}) RETURN u.email AS email, u.role AS role",
-            user_id=user_id,
-        ).single()
-
-    if result is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorised")
-
-    _create_otp(user_id, result["email"])
-    return {"message": "A new code has been sent to your email"}
-
-
-# ── Helpers ──────────────────────────────────────────────────────
-
-def _create_otp(user_id: str, email: str) -> None:
-    """Generate OTP, store in DB, send email."""
-    from datetime import timedelta
-    code = generate_otp()
-    code_hash = hash_otp(code)
-    otp_id = str(uuid.uuid4())
-    expires_at = (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
-
-    with get_session() as session:
-        # Invalidate any existing unused OTPs for this user
-        session.run(
-            """
-            MATCH (u:User {id: $user_id})-[:HAS_OTP]->(o:OTPCode)
-            WHERE o.used = false
-            SET o.used = true
-            """,
-            user_id=user_id,
-        )
-        session.run(
-            """
-            MATCH (u:User {id: $user_id})
-            CREATE (o:OTPCode {
-                id: $otp_id, code_hash: $code_hash,
-                expires_at: $expires_at, used: false,
-                created_at: $now
-            })
-            CREATE (u)-[:HAS_OTP]->(o)
-            """,
-            user_id=user_id, otp_id=otp_id, code_hash=code_hash,
-            expires_at=expires_at, now=datetime.now(timezone.utc).isoformat(),
-        )
-
-    try:
-        send_login_otp(email, code)
-    except EmailDeliveryError:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Could not send the verification email. Please try again shortly.",
-        )
+    token = create_token(user["id"])
+    return LoginResponse(access_token=token, role=user["role"])

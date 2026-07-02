@@ -57,8 +57,7 @@ Once deployed, open your Railway service URL (e.g., `https://mirage-bank.railway
    ```
    python backend/make_admin.py your@email.com
    ```
-3. Copy the 2FA code from the output
-4. Use it to log in via the web app
+3. Log in via the web app with that account
 
 ---
 

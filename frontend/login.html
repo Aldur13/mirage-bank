@@ -72,17 +72,8 @@
         .auth-alert.error   { background:rgba(255,107,139,0.15); color:#ff9ab0; border:1px solid rgba(255,107,139,0.3); }
         .auth-alert.success { background:rgba(67,230,160,0.12); color:#6effa8; border:1px solid rgba(67,230,160,0.3); }
 
-        /* 2FA step */
         .step { display:none; }
         .step.active { display:flex; flex-direction:column; gap:16px; }
-        .code-hint { font-size:13.5px; color:var(--muted); text-align:center; line-height:1.6; }
-        .code-input {
-            text-align:center; font-size:28px; font-weight:800; letter-spacing:.25em;
-            padding:16px; font-family:'SF Mono','Consolas',monospace;
-        }
-        .resend-link { text-align:center; font-size:13px; color:var(--muted); }
-        .resend-link button { background:none; border:none; color:#9ea5ff; font-weight:600; cursor:pointer; font-family:inherit; }
-        .resend-link button:hover { color:#fff; }
 
         /* Conditional registration fields */
         .cond-field { display:none; }
@@ -125,26 +116,6 @@
                 </div>
                 <button type="submit" class="btn-auth" id="login-btn">Sign in</button>
             </form>
-        </div>
-
-        <!-- ── Step: Admin 2FA ──────────────────────────────────── -->
-        <div class="step" id="step-2fa">
-            <p class="code-hint">
-                We sent a 6-digit code to your email.<br>
-                Enter it below to complete sign-in.
-            </p>
-            <form class="auth-form" id="twofa-form">
-                <div>
-                    <label for="twofa-code">Verification code</label>
-                    <input type="text" id="twofa-code" class="code-input" placeholder="000000"
-                           maxlength="6" pattern="\d{6}" inputmode="numeric" autocomplete="one-time-code">
-                </div>
-                <button type="submit" class="btn-auth" id="twofa-btn">Verify</button>
-            </form>
-            <div class="resend-link">
-                Didn't receive it?
-                <button id="resend-btn">Resend code</button>
-            </div>
         </div>
 
         <!-- ── Step: Register ───────────────────────────────────── -->
@@ -231,23 +202,11 @@
             ['step-login','step-register'].forEach(id => {
                 document.getElementById(id).classList.toggle('active', id === target);
             });
-            document.getElementById('step-2fa').classList.remove('active');
             hideAuthAlert();
         });
     });
 
     // ── Login ────────────────────────────────────────────────────
-    // Persist across soft refreshes (cleared on full logout or successful verify)
-    let _pendingToken = sessionStorage.getItem('mb_pending_token') || null;
-
-    // If we already have a pending token, restore the 2FA step immediately
-    if (_pendingToken) {
-        document.getElementById('auth-tabs').style.display = 'none';
-        document.getElementById('step-login').classList.remove('active');
-        document.getElementById('step-2fa').classList.add('active');
-        showAuthAlert('Enter the verification code sent to your email.', 'success');
-    }
-
     document.getElementById('login-form').addEventListener('submit', async e => {
         e.preventDefault();
         hideAuthAlert();
@@ -259,14 +218,7 @@
             password: document.getElementById('login-password').value,
         });
 
-        if (ok && data.requires_2fa) {
-            _pendingToken = data.pending_token;
-            sessionStorage.setItem('mb_pending_token', _pendingToken);
-            document.getElementById('auth-tabs').style.display = 'none';
-            document.getElementById('step-login').classList.remove('active');
-            document.getElementById('step-2fa').classList.add('active');
-            showAuthAlert('Check your email for the verification code.', 'success');
-        } else if (ok) {
+        if (ok) {
             setToken(data.access_token);
             showAuthAlert('Signed in. Redirecting…', 'success');
             const dest = data.role === 'admin' ? 'admin.html' : 'dashboard.html';
@@ -275,37 +227,6 @@
             showAuthAlert(handleApiError(data, 'Sign in failed. Please check your credentials.'), 'error');
         }
         btn.disabled = false; btn.textContent = 'Sign in';
-    });
-
-    // ── 2FA ──────────────────────────────────────────────────────
-    document.getElementById('twofa-form').addEventListener('submit', async e => {
-        e.preventDefault();
-        hideAuthAlert();
-        const btn = document.getElementById('twofa-btn');
-        btn.disabled = true; btn.textContent = 'Verifying…';
-
-        const code = document.getElementById('twofa-code').value.trim();
-        const { ok, data } = await apiFetch('POST', '/auth/2fa', {
-            pending_token: _pendingToken, code,
-        });
-
-        if (ok) {
-            sessionStorage.removeItem('mb_pending_token');
-            setToken(data.access_token);
-            showAuthAlert('Verified. Redirecting…', 'success');
-            const dest = data.role === 'admin' ? 'admin.html' : 'dashboard.html';
-            setTimeout(() => window.location.href = dest, 500);
-        } else {
-            showAuthAlert(handleApiError(data, 'Invalid code. Please try again.'), 'error');
-        }
-        btn.disabled = false; btn.textContent = 'Verify';
-    });
-
-    document.getElementById('resend-btn').addEventListener('click', async () => {
-        if (!_pendingToken) return;
-        const { ok, data } = await apiFetch('POST', '/auth/resend-2fa', { pending_token: _pendingToken });
-        if (ok) showAuthAlert('A new code has been sent.', 'success');
-        else showAuthAlert(handleApiError(data, 'Could not resend code.'), 'error');
     });
 
     // ── Register ─────────────────────────────────────────────────

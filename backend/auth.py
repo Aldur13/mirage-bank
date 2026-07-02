@@ -1,5 +1,3 @@
-import hashlib
-import secrets
 from datetime import datetime, timedelta, timezone
 
 import jwt
@@ -28,13 +26,6 @@ def create_token(user_id: str) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def create_pending_token(user_id: str) -> str:
-    """Short-lived JWT for admin awaiting 2FA confirmation (10-minute TTL)."""
-    expire = datetime.now(timezone.utc) + timedelta(minutes=10)
-    payload = {"sub": user_id, "exp": expire, "type": "2fa_pending"}
-    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
-
-
 def decode_token(token: str) -> str:
     payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
     token_type = payload.get("type")
@@ -47,22 +38,3 @@ def decode_token(token: str) -> str:
     return user_id
 
 
-def decode_pending_token(token: str) -> str:
-    """Decode a 2FA pending token; raises InvalidTokenError if wrong type."""
-    payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
-    if payload.get("type") != "2fa_pending":
-        raise jwt.InvalidTokenError("Not a pending 2FA token")
-    user_id: str = payload.get("sub")
-    if user_id is None:
-        raise jwt.InvalidTokenError("Missing subject")
-    return user_id
-
-
-# ── OTP ─────────────────────────────────────────────────────────
-def generate_otp() -> str:
-    """Return a 6-digit OTP string (100000–999999)."""
-    return str(secrets.randbelow(900000) + 100000)
-
-
-def hash_otp(code: str) -> str:
-    return hashlib.sha256(code.encode()).hexdigest()

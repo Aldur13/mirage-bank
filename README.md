@@ -36,8 +36,6 @@ To create the first admin user:
 cd backend
 python3.13 make_admin.py your@email.com
 ```
-Admin login triggers a 2FA code that prints to the **backend terminal** (no SMTP configured by default).
-
 ---
 
 ## Deploying to production
