@@ -69,6 +69,9 @@ class MeResponse(BaseModel):
     company_name: Optional[str] = None
     company_reg: Optional[str] = None
     guardian_id: Optional[str] = None
+    is_premium: bool = False
+    premium_since: Optional[str] = None
+    is_premium_concierge: bool = False
 
 
 # ── Profile ──────────────────────────────────────────────────────
@@ -116,6 +119,7 @@ class WithdrawResponse(BaseModel):
 class TransferRequest(BaseModel):
     to_email: EmailStr
     amount_cents: int = Field(..., gt=0)
+    category: Optional[str] = Field(None, max_length=30)
 
 
 class TransferResponse(BaseModel):
@@ -349,3 +353,141 @@ class LoanApplicationResponse(BaseModel):
     application_id: str
     status: str
     message: str
+
+
+# ── Premium ──────────────────────────────────────────────────────
+
+PREMIUM_PRICE_CENTS = 100_000  # $1000.00 / €1000.00
+
+
+class PremiumPurchaseResponse(BaseModel):
+    message: str
+    transaction_id: str
+    amount_cents: int
+    new_balance_cents: int
+    currency: str
+    is_premium: bool
+    premium_since: str
+
+
+class PremiumStatusResponse(BaseModel):
+    is_premium: bool
+    premium_since: Optional[str] = None
+    is_premium_concierge: bool = False
+    price_cents: int = PREMIUM_PRICE_CENTS
+
+
+# ── Spending analytics ───────────────────────────────────────────
+
+class CategorySpend(BaseModel):
+    category: str
+    total_cents: int
+    transaction_count: int
+
+
+class MonthlySpend(BaseModel):
+    month: str  # "2026-07"
+    total_cents: int
+    transaction_count: int
+
+
+class SpendingAnalyticsResponse(BaseModel):
+    by_category: List[CategorySpend]
+    by_month: List[MonthlySpend]
+    total_spent_cents: int
+    total_transactions: int
+
+
+# ── Savings goals ────────────────────────────────────────────────
+
+class SavingsGoalCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    target_amount_cents: int = Field(..., gt=0)
+    current_amount_cents: int = Field(0, ge=0)
+    deadline: Optional[str] = None
+
+
+class SavingsGoalUpdateRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    target_amount_cents: Optional[int] = Field(None, gt=0)
+    current_amount_cents: Optional[int] = Field(None, ge=0)
+    deadline: Optional[str] = None
+    # Adds this many cents to current_amount_cents (contribute towards goal).
+    contribute_cents: Optional[int] = Field(None, gt=0)
+
+
+class SavingsGoalItem(BaseModel):
+    id: str
+    name: str
+    target_amount_cents: int
+    current_amount_cents: int
+    deadline: Optional[str] = None
+    created_at: str
+    progress_pct: float
+
+
+class SavingsGoalListResponse(BaseModel):
+    goals: List[SavingsGoalItem]
+
+
+# ── Virtual cards ────────────────────────────────────────────────
+
+class VirtualCardCreateRequest(BaseModel):
+    label: str = Field("", max_length=60)
+    spending_limit_cents: Optional[int] = Field(None, gt=0)
+
+
+class VirtualCardUpdateRequest(BaseModel):
+    frozen: Optional[bool] = None
+    label: Optional[str] = Field(None, max_length=60)
+
+
+class VirtualCardItem(BaseModel):
+    id: str
+    label: str
+    card_number: str        # masked, e.g. "4291 •••• •••• 7183"
+    card_number_full: Optional[str] = None  # only returned on creation
+    cvv: Optional[str] = None               # only returned on creation
+    expiry: str              # MM/YY
+    frozen: bool
+    spending_limit_cents: Optional[int] = None
+    created_at: str
+
+
+class VirtualCardListResponse(BaseModel):
+    cards: List[VirtualCardItem]
+
+
+# ── Cashback ─────────────────────────────────────────────────────
+
+class CashbackTransactionItem(BaseModel):
+    id: str
+    source_transaction_id: str
+    amount_cents: int
+    rate_pct: float
+    timestamp: str
+    description: str
+
+
+class CashbackResponse(BaseModel):
+    total_cashback_cents: int
+    rate_pct: float
+    transactions: List[CashbackTransactionItem]
+
+
+# ── Advanced 2FA / sessions ──────────────────────────────────────
+
+class SessionItem(BaseModel):
+    id: str
+    device: str
+    location: str
+    ip_address: str
+    last_active: str
+    current: bool = False
+
+
+class Advanced2FAResponse(BaseModel):
+    two_fa_enabled: bool
+    method: str
+    sessions: List[SessionItem]
+    trusted_devices: List[str]

@@ -1,0 +1,16 @@
+{
+  "name": "mirage-bank-frontend",
+  "version": "1.0.0",
+  "description": "Mirage Bank frontend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

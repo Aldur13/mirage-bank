@@ -42,6 +42,9 @@ def setup_constraints():
             ("ticket_msg_id_unique","FOR (tm:TicketMessage) REQUIRE tm.id IS UNIQUE"),
             ("business_org_id_unique","FOR (bo:BusinessOrg) REQUIRE bo.id IS UNIQUE"),
             ("loan_app_id_unique",  "FOR (la:LoanApplication) REQUIRE la.id IS UNIQUE"),
+            ("savings_goal_id_unique", "FOR (sg:SavingsGoal) REQUIRE sg.id IS UNIQUE"),
+            ("virtual_card_id_unique", "FOR (vc:VirtualCard) REQUIRE vc.id IS UNIQUE"),
+            ("cashback_tx_id_unique",  "FOR (cb:CashbackTransaction) REQUIRE cb.id IS UNIQUE"),
         ]
         for name, rule in constraints:
             session.run(f"CREATE CONSTRAINT {name} IF NOT EXISTS {rule}")
@@ -49,6 +52,10 @@ def setup_constraints():
         indexes = [
             "FOR (u:User) ON (u.email)",
             "FOR (tk:Ticket) ON (tk.status)",
+            "FOR (u:User) ON (u.is_premium)",
+            "FOR (sg:SavingsGoal) ON (sg.created_at)",
+            "FOR (vc:VirtualCard) ON (vc.created_at)",
+            "FOR (t:Transaction) ON (t.category)",
         ]
         for idx_body in indexes:
             session.run(f"CREATE INDEX IF NOT EXISTS {idx_body}")

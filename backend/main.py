@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from database import close_driver, setup_constraints, setup_treasury
-from routes import account_router, admin_router, auth_router, support_router
+from routes import account_router, admin_router, auth_router, support_router, premium_router
 
 
 @asynccontextmanager
@@ -52,3 +52,4 @@ app.include_router(auth_router, tags=["Auth"])
 app.include_router(account_router, tags=["Account"])
 app.include_router(support_router, tags=["Support"])
 app.include_router(admin_router, tags=["Admin"])
+app.include_router(premium_router, tags=["Premium"])
