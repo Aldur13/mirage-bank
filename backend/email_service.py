@@ -16,10 +16,13 @@ class EmailDeliveryError(Exception):
 def send_email(to: str, subject: str, body: str) -> None:
     """Send a plain-text email.
 
-    Prefers Resend's HTTPS API (works from hosts that block outbound SMTP
-    ports, e.g. Railway), falls back to SMTP if only that is configured,
-    and falls back to console logging when neither is configured (dev mode).
+    Prefers Mailgun, then Resend, then SMTP. Falls back to console logging
+    when none are configured (dev mode).
     """
+    if settings.mailgun_api_key:
+        _send_via_mailgun(to, subject, body)
+        return
+
     if settings.resend_api_key:
         _send_via_resend(to, subject, body)
         return
@@ -31,6 +34,26 @@ def send_email(to: str, subject: str, body: str) -> None:
         return
 
     _send_via_smtp(to, subject, body)
+
+
+def _send_via_mailgun(to: str, subject: str, body: str) -> None:
+    try:
+        resp = httpx.post(
+            f"https://api.mailgun.net/v3/{settings.mailgun_domain}/messages",
+            auth=("api", settings.mailgun_api_key),
+            data={
+                "from": f"noreply@{settings.mailgun_domain}",
+                "to": to,
+                "subject": subject,
+                "text": body,
+            },
+            timeout=10,
+        )
+        resp.raise_for_status()
+        logger.info("Email sent via Mailgun to %s: %s", to, subject)
+    except httpx.HTTPError as exc:
+        logger.error("Failed to send email via Mailgun to %s: %s", to, exc)
+        raise EmailDeliveryError(str(exc)) from exc
 
 
 def _send_via_resend(to: str, subject: str, body: str) -> None:

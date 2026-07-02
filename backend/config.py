@@ -20,10 +20,10 @@ class Settings(BaseSettings):
         "https://mirage-bank.vercel.app"
     )
 
-    # Email — optional. Resend's HTTPS API is preferred because many hosts
-    # (Railway included) block outbound SMTP ports; SMTP is kept as a fallback
-    # for other providers. If neither is configured, emails are printed to
-    # console (dev mode).
+    # Email — optional. Mailgun is preferred, then Resend, then SMTP.
+    # If none configured, emails are printed to console (dev mode).
+    mailgun_domain: str = ""
+    mailgun_api_key: str = ""
     resend_api_key: str = ""
     smtp_host: str = ""
     smtp_port: int = 587
