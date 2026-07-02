@@ -21,15 +21,6 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=1)
 
 
-class TwoFARequest(BaseModel):
-    pending_token: str
-    code: str = Field(..., min_length=6, max_length=6)
-
-
-class ResendOTPRequest(BaseModel):
-    pending_token: str
-
-
 class UserResponse(BaseModel):
     id: str
     name: str
@@ -44,14 +35,6 @@ class RegisterResponse(BaseModel):
 
 
 class LoginResponse(BaseModel):
-    access_token: Optional[str] = None
-    token_type: str = "bearer"
-    role: Optional[str] = None
-    requires_2fa: bool = False
-    pending_token: Optional[str] = None
-
-
-class TwoFAResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     role: str
