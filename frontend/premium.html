@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mirage Bank — Premium</title>
-    <meta name="description" content="Mirage Bank Premium — the future of banking is here. Coming soon.">
+    <meta name="description" content="Mirage Bank Premium — analytics, savings goals, virtual cards, cashback and enhanced security. Live now.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
             font-size: 13px; font-weight: 700; letter-spacing: .06em;
             color: #b8bbff; text-transform: uppercase; margin-bottom: 24px;
         }
-        .coming-soon-badge .dot { width:8px;height:8px;border-radius:50%; background:#7c83ff; animation:pulse 1.6s infinite; }
+        .coming-soon-badge .dot { width:8px;height:8px;border-radius:50%; background:#43e6a0; }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
         .premium-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; margin-top:48px; }
         .premium-card {
@@ -72,22 +72,20 @@
 
     <header class="hero hero-sm">
         <div class="hero-copy hero-copy-center">
-            <div class="coming-soon-badge"><span class="dot"></span> Coming soon</div>
+            <div class="coming-soon-badge"><span class="dot"></span> Now live</div>
             <h1 class="reveal d1">Banking <span class="grad">elevated</span></h1>
-            <p class="lead reveal d2">Mirage Premium is the next tier — exclusive features, dedicated support, advanced analytics, and more. We're building it now.</p>
-            <p class="lead reveal d3" style="font-size:15px;margin-top:0;">Sign up below to be first in line when we launch.</p>
+            <p class="lead reveal d2">Mirage Premium is the next tier — exclusive features, dedicated support, advanced analytics, and more. One-time upgrade, €1,000.00, paid straight from your balance.</p>
+            <p class="lead reveal d3" style="font-size:15px;margin-top:0;">Sign in to upgrade your account in seconds.</p>
 
             <div class="notify-form reveal d4">
-                <input type="email" id="notify-email" placeholder="your@email.com">
-                <button class="btn btn-primary" id="notify-btn">Notify me</button>
+                <a class="btn btn-primary" href="login.html" id="upgrade-cta">Upgrade to Premium</a>
             </div>
-            <div class="notify-success" id="notify-success">You're on the list. We'll be in touch.</div>
         </div>
     </header>
 
     <!-- Teaser features -->
     <section class="features">
-        <h2 class="section-title reveal">What's coming</h2>
+        <h2 class="section-title reveal">What's included</h2>
         <div class="premium-grid">
             <div class="premium-card reveal">
                 <div class="premium-card-icon">
@@ -162,19 +160,12 @@
         nav.querySelectorAll('.nav-links a').forEach(function(a) { a.addEventListener('click', function() { nav.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); }); });
     })();
 
-    // Notify me (local only — no backend endpoint)
-    document.getElementById('notify-btn').addEventListener('click', () => {
-        const email = document.getElementById('notify-email').value.trim();
-        if (!email || !email.includes('@')) return;
-        document.querySelector('.notify-form').style.display = 'none';
-        document.getElementById('notify-success').style.display = 'block';
-    });
-
+    // If signed in, send the upgrade CTA straight to the Premium hub instead of login.
     const tok = localStorage.getItem('banking_token');
     if (tok) {
         fetch(window.API_BASE_URL + '/me', { headers: { Authorization: 'Bearer ' + tok } })
             .then(r => r.ok ? r.json() : null).then(me => {
-                if (me) window.location.href = me.role === 'admin' ? 'admin.html' : 'dashboard.html';
+                if (me) document.getElementById('upgrade-cta').href = 'premium-dashboard.html';
             }).catch(() => {});
     }
 </script>

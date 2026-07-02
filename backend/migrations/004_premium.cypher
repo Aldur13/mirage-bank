@@ -34,7 +34,7 @@ SET u.is_premium = coalesce(u.is_premium, false),
 //   premium_since: ISO datetime string
 //   is_premium_concierge: boolean
 //
-// (:User)-[:OWNS]->(:VirtualCard { id, label, card_number, cvv, expiry,
+// (:User)-[:OWNS_CARD]->(:VirtualCard { id, label, card_number, cvv, expiry,
 //   frozen, spending_limit_cents, created_at })
 //
 // (:User)-[:HAS_GOAL]->(:SavingsGoal { id, name, target_amount_cents,
