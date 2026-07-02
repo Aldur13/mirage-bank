@@ -54,7 +54,7 @@ class LoginResponse(BaseModel):
 class TwoFAResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    role: str = "admin"
+    role: str
 
 
 class MeResponse(BaseModel):
