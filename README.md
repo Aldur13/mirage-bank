@@ -15,7 +15,7 @@ A full-stack digital banking demo — FastAPI backend, Neo4j Aura database, and 
 
 ## Local development
 
-**Requirements:** Python 3.13, packages in `requirements.txt`, a Neo4j Aura instance, a `.env` file.
+**Requirements:** Python 3.13, packages in `backend/requirements.txt`, a Neo4j Aura instance, a `.env` file.
 
 ```
 # Copy and fill in the example env
@@ -49,7 +49,7 @@ The project must live in its own git repository before deploying. Copy the conte
 ```
 mkdir mirage-bank && cd mirage-bank
 git init
-# copy backend/ frontend/ requirements.txt .gitignore .env.example here
+# copy backend/ frontend/ .gitignore .env.example here
 git add .
 git commit -m "initial"
 git remote add origin https://github.com/YOU/mirage-bank.git

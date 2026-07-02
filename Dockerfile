@@ -5,8 +5,8 @@ COPY . /app/
 
 WORKDIR /app/backend
 
-# Install dependencies from root
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Install dependencies from backend/requirements.txt (the one actually used by the app)
+RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
 # Expose port
 EXPOSE 8000
