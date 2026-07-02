@@ -58,6 +58,7 @@ def purchase_premium(current_user: dict = Depends(get_current_user)):
             {_ACCOUNT_MATCH}
             MATCH (treasury:Account {{id: $treasury_id}})
             WHERE a.status = 'active' AND a.balance_cents >= $amount_cents
+              AND coalesce(u.is_premium, false) = false
             SET a.balance_cents = a.balance_cents - $amount_cents,
                 treasury.balance_cents = treasury.balance_cents + $amount_cents,
                 u.is_premium = true,
@@ -77,7 +78,7 @@ def purchase_premium(current_user: dict = Depends(get_current_user)):
     if result is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Insufficient funds or account is not active",
+            detail="Insufficient funds, account is not active, or account is already Premium",
         )
 
     return PremiumPurchaseResponse(
@@ -286,6 +287,26 @@ def update_savings_goal(goal_id: str, body: SavingsGoalUpdateRequest, current_us
         ).single()
 
     return _goal_item(dict(result))
+
+
+@router.delete("/savings-goal/{goal_id}")
+def delete_savings_goal(goal_id: str, current_user: dict = Depends(get_current_user)):
+    _require_premium(current_user)
+
+    with get_session() as session:
+        result = session.run(
+            """
+            MATCH (u:User {id: $user_id})-[:HAS_GOAL]->(sg:SavingsGoal {id: $goal_id})
+            DETACH DELETE sg
+            RETURN sg.id AS id
+            """,
+            user_id=current_user["id"], goal_id=goal_id,
+        ).single()
+
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Savings goal not found")
+
+    return {"message": "Savings goal deleted", "goal_id": goal_id}
 
 
 # ── Virtual cards ────────────────────────────────────────────────
