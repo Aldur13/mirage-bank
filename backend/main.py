@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from config import settings
 from database import close_driver, setup_constraints, setup_treasury
@@ -50,5 +50,23 @@ app.include_router(premium_router, tags=["Premium"])
 
 # Serve static frontend files from the frontend directory
 frontend_dir = Path(__file__).parent.parent / "frontend"
-if frontend_dir.exists():
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="static")
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_frontend(full_path: str):
+    """Serve frontend files or index.html for SPA routing. Catch-all, lowest priority."""
+    if not frontend_dir.exists():
+        return {"error": "Frontend not found"}, 404
+
+    file_path = frontend_dir / full_path
+
+    # If it's a file that exists, serve it
+    if file_path.is_file() and file_path.is_relative_to(frontend_dir):
+        return FileResponse(file_path)
+
+    # Otherwise serve index.html (SPA routing)
+    index_path = frontend_dir / "index.html"
+    if index_path.exists():
+        return FileResponse(index_path)
+
+    return {"error": "Not found"}, 404
