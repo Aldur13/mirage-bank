@@ -130,7 +130,7 @@
         <!-- ── Step: Admin 2FA ──────────────────────────────────── -->
         <div class="step" id="step-2fa">
             <p class="code-hint">
-                We sent a 6-digit code to your admin email.<br>
+                We sent a 6-digit code to your email.<br>
                 Enter it below to complete sign-in.
             </p>
             <form class="auth-form" id="twofa-form">
@@ -293,7 +293,8 @@
             sessionStorage.removeItem('mb_pending_token');
             setToken(data.access_token);
             showAuthAlert('Verified. Redirecting…', 'success');
-            setTimeout(() => window.location.href = 'admin.html', 500);
+            const dest = data.role === 'admin' ? 'admin.html' : 'dashboard.html';
+            setTimeout(() => window.location.href = dest, 500);
         } else {
             showAuthAlert(handleApiError(data, 'Invalid code. Please try again.'), 'error');
         }

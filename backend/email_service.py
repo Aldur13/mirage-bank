@@ -35,12 +35,12 @@ def send_email(to: str, subject: str, body: str) -> None:
         raise
 
 
-def send_admin_otp(email: str, code: str) -> None:
-    subject = "Mirage Bank — Admin Verification Code"
+def send_login_otp(email: str, code: str) -> None:
+    subject = "Mirage Bank — Verification Code"
     body = (
-        f"Your admin verification code is: {code}\n\n"
+        f"Your verification code is: {code}\n\n"
         "This code expires in 10 minutes. Do not share it with anyone.\n\n"
-        "If you did not attempt to sign in, contact your security team immediately.\n\n"
+        "If you did not attempt to sign in, contact support immediately.\n\n"
         "— Mirage Bank Security"
     )
     send_email(email, subject, body)

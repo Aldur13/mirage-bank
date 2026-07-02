@@ -9,7 +9,7 @@ from auth import (
     generate_otp, hash_otp, hash_password, verify_password,
 )
 from database import get_session
-from email_service import send_admin_otp
+from email_service import send_login_otp
 from models import (
     LoginRequest, LoginResponse,
     RegisterRequest, RegisterResponse, UserResponse,
@@ -164,14 +164,10 @@ def login(body: LoginRequest):
     if user["status"] == "frozen":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account is frozen. Please contact support.")
 
-    # Admin: require 2FA before issuing full token
-    if user.get("role") == "admin":
-        pending_token = create_pending_token(user["id"])
-        _create_otp(user["id"], user["email"])
-        return LoginResponse(requires_2fa=True, pending_token=pending_token)
-
-    token = create_token(user["id"])
-    return LoginResponse(access_token=token, role=user.get("role", "user"))
+    # All accounts: require an emailed verification code before issuing a full token
+    pending_token = create_pending_token(user["id"])
+    _create_otp(user["id"], user["email"])
+    return LoginResponse(requires_2fa=True, pending_token=pending_token)
 
 
 @router.post("/auth/2fa", response_model=TwoFAResponse)
@@ -203,7 +199,7 @@ def verify_2fa(body: TwoFARequest):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account has been disabled")
 
     token = create_token(user_id)
-    return TwoFAResponse(access_token=token, role="admin")
+    return TwoFAResponse(access_token=token, role=result["role"])
 
 
 @router.post("/auth/resend-2fa")
@@ -220,7 +216,7 @@ def resend_2fa(body: ResendOTPRequest):
             user_id=user_id,
         ).single()
 
-    if result is None or result["role"] != "admin":
+    if result is None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorised")
 
     _create_otp(user_id, result["email"])
@@ -261,4 +257,4 @@ def _create_otp(user_id: str, email: str) -> None:
             expires_at=expires_at, now=datetime.now(timezone.utc).isoformat(),
         )
 
-    send_admin_otp(email, code)
+    send_login_otp(email, code)
