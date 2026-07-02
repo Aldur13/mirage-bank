@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from auth import hash_password, verify_password
 from database import TREASURY_ACCOUNT_ID, get_session
 from dependencies import get_current_user
+from routes.premium import award_cashback
 from models import (
     MeResponse,
     BalanceResponse,
@@ -48,6 +49,9 @@ def get_me(current_user: dict = Depends(get_current_user)):
         company_name=current_user.get("company_name"),
         company_reg=current_user.get("company_reg"),
         guardian_id=current_user.get("guardian_id"),
+        is_premium=current_user.get("is_premium", False),
+        premium_since=current_user.get("premium_since"),
+        is_premium_concierge=current_user.get("is_premium_concierge", False),
     )
 
 
@@ -178,7 +182,7 @@ def transfer(body: TransferRequest, current_user: dict = Depends(get_current_use
                 to_a.balance_cents   = to_a.balance_cents   + $amount_cents
             CREATE (t:Transaction {{
                 id: $transaction_id, type: 'transfer', amount_cents: $amount_cents,
-                timestamp: $now, status: 'completed', description: 'Transfer'
+                timestamp: $now, status: 'completed', description: 'Transfer', category: $category
             }})
             CREATE (from_a)-[:SENT]->(t)
             CREATE (t)-[:TO]->(to_a)
@@ -186,7 +190,11 @@ def transfer(body: TransferRequest, current_user: dict = Depends(get_current_use
             """,
             user_id=current_user["id"], to_email=body.to_email.lower(),
             amount_cents=body.amount_cents, transaction_id=transaction_id, now=now,
+            category=body.category,
         ).single()
+
+        if result is not None and current_user.get("is_premium"):
+            award_cashback(session, current_user["id"], transaction_id, body.amount_cents)
 
     if result is None:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
