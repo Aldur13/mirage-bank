@@ -15,12 +15,11 @@ One-click deployment — backend API + frontend served from the same service. No
 1. Go to [railway.app](https://railway.app) and log in
 2. Click **New Project** → **Deploy from GitHub repo**
 3. Select your `mirage-bank` repository
-4. When prompted, set **Root Directory: `backend`**
-5. Click **Deploy**
+4. Click **Deploy**
 
-That's it. Railway will:
-- Detect Python + `requirements.txt`
-- Build and start the app with `Procfile`
+That's it. Railway will auto-detect the `Procfile` at the root and:
+- Install Python dependencies from `backend/requirements.txt`
+- Start the backend with `start.sh`
 - Serve the frontend from the same URL as the API
 
 ---
