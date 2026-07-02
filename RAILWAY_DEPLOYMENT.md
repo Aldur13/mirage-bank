@@ -1,6 +1,6 @@
 # Deploying Mirage Bank to Railway
 
-One-click deployment — backend API + frontend served from the same service. No separate URLs, no complexity.
+Docker-based deployment — one service, one URL, no hassle.
 
 ## Prerequisites
 
@@ -15,18 +15,20 @@ One-click deployment — backend API + frontend served from the same service. No
 1. Go to [railway.app](https://railway.app) and log in
 2. Click **New Project** → **Deploy from GitHub repo**
 3. Select your `mirage-bank` repository
-4. Click **Deploy**
+4. Railway will detect the `Dockerfile` and build automatically
+5. Click **Deploy**
 
-That's it. Railway will auto-detect the `Procfile` at the root and:
-- Install Python dependencies from `backend/requirements.txt`
-- Start the backend with `start.sh`
-- Serve the frontend from the same URL as the API
+Done. Railway will:
+- Build the Docker image with Python 3.13
+- Install all dependencies
+- Start the app on port 8000
+- Serve both API and frontend from the same URL
 
 ---
 
 ## Configure Environment Variables
 
-Once deploying, go to your service **Variables** tab and add:
+Once deployed, go to your service **Variables** tab and add:
 
 | Variable | Value |
 |---|---|
@@ -36,7 +38,7 @@ Once deploying, go to your service **Variables** tab and add:
 | `NEO4J_DATABASE` | Your Aura database name (usually `neo4j`) |
 | `JWT_SECRET` | Generate: `python -c "import secrets; print(secrets.token_urlsafe(48))"` |
 
-Save and redeploy. Done.
+Save — Railway will redeploy automatically.
 
 ---
 
@@ -50,12 +52,12 @@ Once deployed, open your Railway service URL (e.g., `https://mirage-bank.railway
 
 ## Create First Admin
 
-1. Go to your Railway service **Terminal** tab
+1. Go to your Railway service **Shell** tab
 2. Run:
    ```
-   python make_admin.py your@email.com
+   python backend/make_admin.py your@email.com
    ```
-3. Copy the 2FA code printed in the terminal
+3. Copy the 2FA code from the output
 4. Use it to log in via the web app
 
 ---
@@ -77,10 +79,10 @@ The app is served from `http://localhost:8000` — frontend is included.
 ## Architecture
 
 ```
-Railway Service (mirage-bank.railway.app)
+Docker Container (Railway)
+├── Python 3.13
 ├── Backend API (FastAPI) → runs on PORT 8000
 └── Frontend (Static HTML/CSS/JS) → served from /
-    (frontend files hosted at the same domain)
 ```
 
-No separate frontend service. Everything from one URL.
+Single service, one URL. That's it.
