@@ -15,12 +15,13 @@ This guide explains how to deploy the entire Mirage Bank application (backend + 
 1. Go to [railway.app](https://railway.app) and log in
 2. Click **New Project** → **Deploy from GitHub repo**
 3. Select your `mirage-bank` repository
-4. Railway will detect `railway.json` and show service options
-5. Select the **backend** service to deploy first
-6. Railway will automatically:
+4. Click **Configure** and set:
+   - **Root Directory:** `backend`
+   - This tells Railway to look for `requirements.txt` and `Procfile` in the backend folder
+5. Railway will automatically:
    - Detect the Python runtime
-   - Read `requirements.txt`
-   - Use the build/start commands from `railway.json`
+   - Read `requirements.txt` and build dependencies
+   - Use `Procfile` for the start command
 
 ### Configure Backend Environment Variables
 
@@ -54,8 +55,13 @@ Once deployed:
 
 1. In the same project, click **Add Service** → **Deploy from GitHub repo**
 2. Select your `mirage-bank` repository again
-3. Select the **frontend** service
-4. Railway will detect `package.json` and use Node.js runtime
+3. Click **Configure** and set:
+   - **Root Directory:** `frontend`
+   - This tells Railway to look for `package.json` and `Procfile` in the frontend folder
+4. Railway will automatically:
+   - Detect the Node.js runtime
+   - Install dependencies from `package.json`
+   - Use `Procfile` for the start command
 
 ### Configure Frontend Environment Variables
 
