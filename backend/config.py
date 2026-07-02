@@ -20,7 +20,11 @@ class Settings(BaseSettings):
         "https://mirage-bank.vercel.app"
     )
 
-    # SMTP — optional. If smtp_host is empty, emails are printed to console (dev mode).
+    # Email — optional. Resend's HTTPS API is preferred because many hosts
+    # (Railway included) block outbound SMTP ports; SMTP is kept as a fallback
+    # for other providers. If neither is configured, emails are printed to
+    # console (dev mode).
+    resend_api_key: str = ""
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_user: str = ""

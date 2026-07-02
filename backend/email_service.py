@@ -2,19 +2,53 @@ import logging
 import smtplib
 from email.mime.text import MIMEText
 
+import httpx
+
 from config import settings
 
 logger = logging.getLogger(__name__)
 
 
+class EmailDeliveryError(Exception):
+    """Raised when an email could not be sent through any configured channel."""
+
+
 def send_email(to: str, subject: str, body: str) -> None:
-    """Send a plain-text email. Falls back to console logging when SMTP is not configured."""
+    """Send a plain-text email.
+
+    Prefers Resend's HTTPS API (works from hosts that block outbound SMTP
+    ports, e.g. Railway), falls back to SMTP if only that is configured,
+    and falls back to console logging when neither is configured (dev mode).
+    """
+    if settings.resend_api_key:
+        _send_via_resend(to, subject, body)
+        return
+
     if not settings.smtp_host:
         banner = "=" * 60
         print(f"\n{banner}\n[MIRAGE BANK — DEV EMAIL]\nTo:      {to}\nSubject: {subject}\n\n{body}\n{banner}\n", flush=True)
-        logger.info("Email logged to console (no SMTP configured). To: %s | Subject: %s", to, subject)
+        logger.info("Email logged to console (no email provider configured). To: %s | Subject: %s", to, subject)
         return
 
+    _send_via_smtp(to, subject, body)
+
+
+def _send_via_resend(to: str, subject: str, body: str) -> None:
+    try:
+        resp = httpx.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": f"Bearer {settings.resend_api_key}"},
+            json={"from": settings.smtp_from, "to": [to], "subject": subject, "text": body},
+            timeout=10,
+        )
+        resp.raise_for_status()
+        logger.info("Email sent via Resend to %s: %s", to, subject)
+    except httpx.HTTPError as exc:
+        logger.error("Failed to send email via Resend to %s: %s", to, exc)
+        raise EmailDeliveryError(str(exc)) from exc
+
+
+def _send_via_smtp(to: str, subject: str, body: str) -> None:
     msg = MIMEText(body, "plain", "utf-8")
     msg["Subject"] = subject
     msg["From"] = settings.smtp_from
@@ -29,10 +63,10 @@ def send_email(to: str, subject: str, body: str) -> None:
             if settings.smtp_user:
                 server.login(settings.smtp_user, settings.smtp_password)
             server.sendmail(settings.smtp_from, [to], msg.as_string())
-        logger.info("Email sent to %s: %s", to, subject)
+        logger.info("Email sent via SMTP to %s: %s", to, subject)
     except Exception as exc:
-        logger.error("Failed to send email to %s: %s", to, exc)
-        raise
+        logger.error("Failed to send email via SMTP to %s: %s", to, exc)
+        raise EmailDeliveryError(str(exc)) from exc
 
 
 def send_login_otp(email: str, code: str) -> None:
