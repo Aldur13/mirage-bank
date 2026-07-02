@@ -9,7 +9,7 @@ from auth import (
     generate_otp, hash_otp, hash_password, verify_password,
 )
 from database import get_session
-from email_service import send_login_otp
+from email_service import EmailDeliveryError, send_login_otp
 from models import (
     LoginRequest, LoginResponse,
     RegisterRequest, RegisterResponse, UserResponse,
@@ -257,4 +257,10 @@ def _create_otp(user_id: str, email: str) -> None:
             expires_at=expires_at, now=datetime.now(timezone.utc).isoformat(),
         )
 
-    send_login_otp(email, code)
+    try:
+        send_login_otp(email, code)
+    except EmailDeliveryError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not send the verification email. Please try again shortly.",
+        )
