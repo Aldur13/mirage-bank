@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 from config import settings
 from database import close_driver, setup_constraints, setup_treasury
@@ -25,10 +25,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — only needed for local dev with separate frontend
+# CORS — restrict to the origins configured for this environment
+# (see config.Settings.cors_origins; override in prod via the env var).
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in settings.cors_origins.split(",") if o.strip()],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -56,17 +57,22 @@ frontend_dir = Path(__file__).parent.parent / "frontend"
 async def serve_frontend(full_path: str):
     """Serve frontend files or index.html for SPA routing. Catch-all, lowest priority."""
     if not frontend_dir.exists():
-        return {"error": "Frontend not found"}, 404
+        return JSONResponse({"error": "Frontend not found"}, status_code=404)
 
-    file_path = frontend_dir / full_path
+    # Resolve before the containment check: is_relative_to() is purely
+    # lexical and does not collapse "..", so an unresolved path like
+    # frontend/../backend/config.py would pass it. Resolving first turns
+    # the check into a real "is this inside the frontend dir?" guard and
+    # blocks path traversal to files outside it.
+    base = frontend_dir.resolve()
+    file_path = (base / full_path).resolve()
 
-    # If it's a file that exists, serve it
-    if file_path.is_file() and file_path.is_relative_to(frontend_dir):
+    if file_path.is_file() and file_path.is_relative_to(base):
         return FileResponse(file_path)
 
     # Otherwise serve index.html (SPA routing)
-    index_path = frontend_dir / "index.html"
-    if index_path.exists():
+    index_path = base / "index.html"
+    if index_path.is_file():
         return FileResponse(index_path)
 
-    return {"error": "Not found"}, 404
+    return JSONResponse({"error": "Not found"}, status_code=404)

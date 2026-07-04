@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from database import TREASURY_ACCOUNT_ID, get_session
-from dependencies import get_current_admin
+from dependencies import get_current_admin, get_current_owner
 from models import (
     AdminUserItem, AdminUsersResponse,
     AdminTransactionItem, AdminTransactionsResponse,
@@ -125,24 +125,24 @@ def _set_status(target_user_id: str, admin: dict, new_status: str, action_type: 
 
 
 @router.post("/freeze", response_model=UserActionResponse)
-def freeze_user(body: UserActionRequest, admin: dict = Depends(get_current_admin)):
+def freeze_user(body: UserActionRequest, admin: dict = Depends(get_current_owner)):
     return UserActionResponse(message="User frozen", **_set_status(body.user_id, admin, "frozen", "freeze"))
 
 
 @router.post("/unfreeze", response_model=UserActionResponse)
-def unfreeze_user(body: UserActionRequest, admin: dict = Depends(get_current_admin)):
+def unfreeze_user(body: UserActionRequest, admin: dict = Depends(get_current_owner)):
     return UserActionResponse(message="User restored", **_set_status(body.user_id, admin, "active", "unfreeze"))
 
 
 @router.post("/disable", response_model=UserActionResponse)
-def disable_user(body: UserActionRequest, admin: dict = Depends(get_current_admin)):
+def disable_user(body: UserActionRequest, admin: dict = Depends(get_current_owner)):
     return UserActionResponse(message="User disabled", **_set_status(body.user_id, admin, "disabled", "disable"))
 
 
 # ── Credit ───────────────────────────────────────────────────────
 
 @router.post("/credit", response_model=CreditResponse)
-def credit_user(body: CreditRequest, admin: dict = Depends(get_current_admin)):
+def credit_user(body: CreditRequest, admin: dict = Depends(get_current_owner)):
     description = body.description.strip() or "Admin Credit"
     transaction_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc).isoformat()
@@ -300,7 +300,7 @@ def admin_get_ticket(ticket_id: str, _: dict = Depends(get_current_admin)):
 
 @router.patch("/support/tickets/{ticket_id}", response_model=TicketActionResponse)
 def admin_update_ticket(ticket_id: str, body: AdminTicketUpdateRequest,
-                        admin: dict = Depends(get_current_admin)):
+                        admin: dict = Depends(get_current_owner)):
     now = datetime.now(timezone.utc).isoformat()
     updates = {}
     if body.status is not None:
@@ -330,7 +330,7 @@ def admin_update_ticket(ticket_id: str, body: AdminTicketUpdateRequest,
 @router.post("/support/tickets/{ticket_id}/messages", response_model=TicketMessageItem,
              status_code=status.HTTP_201_CREATED)
 def admin_reply_ticket(ticket_id: str, body: TicketMessageCreate,
-                       admin: dict = Depends(get_current_admin)):
+                       admin: dict = Depends(get_current_owner)):
     msg_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc).isoformat()
 
