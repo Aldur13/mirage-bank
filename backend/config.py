@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
 
+    # The single super-owner account. Only the admin whose email matches this
+    # may perform privileged mutations (credit/mint, freeze, disable, ticket
+    # writes); every other admin is read-only. Must be set for those actions
+    # to work — the owner check fails closed when it is empty.
+    owner_email: str = ""
+
     # Comma-separated list of allowed browser origins for CORS.
     # In production, override with your deployed Vercel domain.
     cors_origins: str = (
