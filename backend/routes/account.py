@@ -32,6 +32,35 @@ _ACCOUNT_MATCH = """
     WHERE a IS NOT NULL
 """
 
+# Business-account members share one account; only these roles may move
+# money out of it. Personal/youth holders own their account directly and
+# are never gated by this.
+_MONEY_ROLES = ("owner", "manager")
+
+
+def _assert_can_move_money(session, user_id: str) -> None:
+    """Raise 403 if the caller's money would come from a shared business
+    account they only have 'employee' rights on. Mirrors the account
+    resolution in _ACCOUNT_MATCH: a personal (OWNS) account always wins,
+    so a member who also owns a personal account is never blocked."""
+    rec = session.run(
+        """
+        MATCH (u:User {id: $user_id})
+        OPTIONAL MATCH (u)-[:OWNS]->(a1:Account)
+        OPTIONAL MATCH (u)-[m:MEMBER_OF]->(:BusinessOrg)
+        RETURN (a1 IS NOT NULL) AS owns_personal, collect(m.role) AS roles
+        """,
+        user_id=user_id,
+    ).single()
+    if rec is None or rec["owns_personal"]:
+        return
+    roles = rec["roles"]
+    if roles and not any(r in _MONEY_ROLES for r in roles):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your role does not permit moving funds from the business account",
+        )
+
 
 # ── Profile ──────────────────────────────────────────────────────
 
@@ -125,6 +154,7 @@ def withdraw(body: WithdrawRequest, current_user: dict = Depends(get_current_use
     now = datetime.now(timezone.utc).isoformat()
 
     with get_session() as session:
+        _assert_can_move_money(session, current_user["id"])
         result = session.run(
             f"""
             {_ACCOUNT_MATCH}
@@ -164,6 +194,7 @@ def transfer(body: TransferRequest, current_user: dict = Depends(get_current_use
     now = datetime.now(timezone.utc).isoformat()
 
     with get_session() as session:
+        _assert_can_move_money(session, current_user["id"])
         result = session.run(
             f"""
             MATCH (sender:User {{id: $user_id}})
